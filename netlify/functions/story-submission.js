@@ -9,15 +9,19 @@ const logError = (err, context = '') => {
 };
 
 exports.handler = async (event, context) => {
+  // Set CORS headers for all responses
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json"
+  };
+  
   // Set CORS headers for preflight requests
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Methods": "POST, OPTIONS"
-      },
+      headers,
       body: ""
     };
   }
@@ -26,7 +30,7 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== "POST") {
     return { 
       statusCode: 405, 
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ error: "Method Not Allowed" }) 
     };
   }
@@ -44,7 +48,7 @@ exports.handler = async (event, context) => {
       console.error("Error parsing submission data:", parseError);
       return {
         statusCode: 400,
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           error: "Invalid JSON format",
           details: parseError.message
@@ -58,7 +62,7 @@ exports.handler = async (event, context) => {
       console.error("Validation errors:", validationErrors);
       return {
         statusCode: 400,
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           error: "Validation failed",
           details: validationErrors
@@ -69,7 +73,15 @@ exports.handler = async (event, context) => {
     // Add timestamp and generate ID
     const timestamp = new Date().toISOString();
     const id = generateId();
-    const slug = slugify(data.title, { lower: true, strict: true });
+    
+    // Use slugify safely with fallback
+    let slug;
+    try {
+      slug = data.title ? slugify(data.title, { lower: true, strict: true }) : `story-${id}`;
+    } catch (slugError) {
+      console.error("Error creating slug:", slugError);
+      slug = `story-${id}`;
+    }
     
     // Create filename for the markdown file (now storing in submissions directory)
     const filename = `${slug}-${id}.md`;
@@ -77,20 +89,17 @@ exports.handler = async (event, context) => {
     // Format content as markdown with frontmatter
     const content = formatAsMarkdown(data, id, timestamp, slug);
     
-    // Register the form submission with Netlify Forms
-    console.log("Registering submission with Netlify Forms");
+    // For development, just log and return success
+    console.log("Would save file:", filename);
+    console.log("Content:", content);
     
-    // At this point, Netlify Forms has already processed the submission
-    // The form data is accessible in the Netlify Admin UI
+    // In production, we would save the file to a CMS or database
+    console.log("Submission processed successfully!");
     
     // Return success response
-    console.log("Submission processed successfully!");
     return {
       statusCode: 200,
-      headers: { 
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      },
+      headers,
       body: JSON.stringify({
         message: "Story submission received successfully",
         id,
@@ -103,7 +112,7 @@ exports.handler = async (event, context) => {
     
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ 
         error: "Failed to process submission",
         message: err.message
