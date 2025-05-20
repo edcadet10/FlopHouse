@@ -201,6 +201,9 @@ ${data.lessons || 'No lessons provided.'}
 // Helper function to create a file in GitHub
 async function createFileInGitHub(filename, content) {
   try {
+    // Log environment variables (redacted)
+    console.log(`GitHub config: Owner=${process.env.GITHUB_OWNER || 'edcadet10'}, Repo=${process.env.GITHUB_REPO || 'FlopHouse'}, Branch=${process.env.GITHUB_BRANCH || 'main'}, Token=${process.env.GITHUB_TOKEN ? 'Set' : 'Not Set'}`);
+    
     const octokit = new Octokit({
       auth: process.env.GITHUB_TOKEN
     });
@@ -223,9 +226,15 @@ async function createFileInGitHub(filename, content) {
       branch
     });
     
+    console.log("GitHub file creation successful:", response.status);
     return response.data;
   } catch (err) {
     console.error("Error creating file in GitHub:", err);
+    console.error("Error details:", JSON.stringify({
+      message: err.message,
+      status: err.status,
+      response: err.response ? err.response.data : 'No response data'
+    }));
     // Don't rethrow, just return an error object with useful info
     return {
       error: true,
