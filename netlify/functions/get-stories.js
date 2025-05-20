@@ -130,7 +130,7 @@ async function fetchStoriesFromGitHub() {
     // Repository details from environment variables
     const owner = process.env.GITHUB_OWNER || 'edcadet10';
     const repo = process.env.GITHUB_REPO || 'FlopHouse';
-    const branch = process.env.GITHUB_BRANCH || 'content';
+    const branch = process.env.GITHUB_BRANCH || 'main';  // Changed from 'content' to 'main'
     const path = 'content/stories';
     
     // Log environment variables for debugging (redacting token)
