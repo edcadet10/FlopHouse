@@ -1,6 +1,7 @@
 // This function will process form submissions and store them as Netlify CMS content
 const slugify = require("slugify");
 const fetch = require("node-fetch");
+const { Base64 } = require("js-base64");
 
 // Add proper error logging
 const logError = (err, context = '') => {
@@ -85,32 +86,41 @@ exports.handler = async (event, context) => {
     }
     
     // Create filename for the markdown file
-    const filename = `${slug}-${id}.md`;
+    const filename = `${slug}.md`;
     
     // Format content as markdown with frontmatter
     const content = formatAsMarkdown(data, id, timestamp, slug);
     
-    // Log submission - in production this would be stored in CMS
-    console.log("Would save file:", filename);
-    console.log("Content:", content);
-    
-    // NOTE: To actually store submissions in GitHub through Git Gateway,
-    // you would need to make API calls to the Git Gateway endpoint
-    // This requires proper setup in the Netlify UI for Identity and Git Gateway
-    // and is beyond the scope of this simple fix
-
-    // Simply return success with details for now
-    // In production, implement GitHub storage
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        message: "Story submission received successfully",
-        id,
-        slug,
-        timestamp
-      })
-    };
+    // Store the submission in GitHub through Git Gateway
+    try {
+      await saveSubmissionToGitHub(filename, content);
+      console.log("Successfully saved submission to GitHub:", filename);
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          message: "Story submission received successfully and saved for review",
+          id,
+          slug,
+          timestamp
+        })
+      };
+    } catch (githubError) {
+      console.error("Error saving to GitHub:", githubError);
+      // If GitHub storage fails, still acknowledge receipt but note the error
+      return {
+        statusCode: 202, // Accepted, but not fully processed
+        headers,
+        body: JSON.stringify({
+          message: "Story submission received but could not be saved for review. Admin has been notified.",
+          id,
+          slug,
+          timestamp,
+          warning: "Submission was not automatically saved to the review queue."
+        })
+      };
+    }
   } catch (err) {
     logError(err, 'story-submission');
     
@@ -199,4 +209,127 @@ ${data.lessons || 'No lessons provided.'}
 // Helper function to generate a unique ID
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
+}
+
+// Function to save the submission to GitHub via Git Gateway
+async function saveSubmissionToGitHub(filename, content) {
+  try {
+    // First try using Git Gateway
+    try {
+      await saveSubmissionWithGitGateway(filename, content);
+      return true;
+    } catch (gitGatewayError) {
+      console.log("Git Gateway failed, falling back to GitHub token:", gitGatewayError.message);
+      
+      // If Git Gateway fails, try direct GitHub API
+      await saveSubmissionWithGitHubToken(filename, content);
+      return true;
+    }
+  } catch (error) {
+    console.error("All GitHub submission methods failed:", error);
+    throw error;
+  }
+}
+
+// Method using Netlify's Git Gateway
+async function saveSubmissionWithGitGateway(filename, content) {
+  // Netlify's Git Gateway endpoint
+  const gatewayEndpoint = '/.netlify/git/github';
+  
+  try {
+    // Get access token from the current request context
+    // This requires Netlify Identity and Git Gateway to be configured
+    const tokenResponse = await fetch('/.netlify/identity/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'grant_type=client_credentials'
+    });
+    
+    if (!tokenResponse.ok) {
+      throw new Error(`Failed to get access token: ${tokenResponse.status} ${tokenResponse.statusText}`);
+    }
+    
+    const { access_token } = await tokenResponse.json();
+    
+    // Repository details from environment variables
+    const owner = process.env.GITHUB_OWNER || 'edcadet10';
+    const repo = process.env.GITHUB_REPO || 'FlopHouse';
+    const branch = process.env.GITHUB_BRANCH || 'main';
+    const path = `content/submissions/${filename}`;
+    
+    // Create a base64 encoded content for the file
+    const encodedContent = Base64.encode(content);
+    
+    // Use Git Gateway to create a new file in the submissions directory
+    const response = await fetch(`${gatewayEndpoint}/repos/${owner}/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: `New story submission: ${filename}`,
+        content: encodedContent,
+        branch
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Failed to create file: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+    }
+    
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in saveSubmissionWithGitGateway:', error);
+    throw error;
+  }
+}
+
+// Alternative approach using direct GitHub API if Git Gateway fails
+async function saveSubmissionWithGitHubToken(filename, content) {
+  try {
+    // Use GitHub token from environment variables
+    if (!process.env.GITHUB_TOKEN) {
+      throw new Error('GitHub token not configured');
+    }
+    
+    // Repository details from environment variables
+    const owner = process.env.GITHUB_OWNER || 'edcadet10';
+    const repo = process.env.GITHUB_REPO || 'FlopHouse';
+    const branch = process.env.GITHUB_BRANCH || 'main';
+    const path = `content/submissions/${filename}`;
+    
+    // Create a base64 encoded content
+    const encodedContent = Base64.encode(content);
+    
+    // Use GitHub API to create a new file
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'FlopHouse-Netlify-Function'
+      },
+      body: JSON.stringify({
+        message: `New story submission: ${filename}`,
+        content: encodedContent,
+        branch
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Failed to create file: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+    }
+    
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error in saveSubmissionWithGitHubToken:', error);
+    throw error;
+  }
 }

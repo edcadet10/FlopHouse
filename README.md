@@ -81,6 +81,23 @@ Visit [http://localhost:3000](http://localhost:3000) to see the application in y
 
 ## 🔄 Workflows
 
+### Story Submission and Review Process
+
+1. **User Submission**:
+   - Users submit stories through the `/submit` form
+   - Submissions are validated and processed by the `story-submission.js` Netlify function
+   - Valid submissions are stored as markdown files in the `content/submissions` directory
+
+2. **Admin Review**:
+   - Admins access the Netlify CMS at `/admin` to review pending submissions
+   - The CMS is configured with an editorial workflow that allows for draft/review/approval stages
+   - Admins can edit, approve, or reject submissions
+
+3. **Publication**:
+   - Approved stories are moved to the `content/stories` directory with `published: true`
+   - Published stories appear on the main site with proper categorization
+   - The `get-stories.js` Netlify function retrieves published stories from GitHub
+
 The project follows these UX design principles:
 
 | Principle | Implementation |
