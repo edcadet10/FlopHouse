@@ -10,8 +10,9 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Redirect Netlify CMS to admin path
+# Ensure Netlify CMS admin interface is properly served
 [[redirects]]
-  from = "/admin/*"
+  from = "/admin"
   to = "/admin/index.html"
   status = 200
+  force = true

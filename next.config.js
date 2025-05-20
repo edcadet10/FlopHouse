@@ -7,7 +7,9 @@ const nextConfig = {
   // Enable trailing slashes for static export compatibility
   trailingSlash: true,
   // This ensures Next.js generates static HTML files
-  output: 'export'
+  output: 'export',
+  // Ensure the public directory is properly copied
+  distDir: 'out'
 }
 
 module.exports = nextConfig
