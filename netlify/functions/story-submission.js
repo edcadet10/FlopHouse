@@ -1,5 +1,6 @@
 // This function will process form submissions and store them as Netlify CMS content
 const slugify = require("slugify");
+const fetch = require("node-fetch");
 
 // Add proper error logging
 const logError = (err, context = '') => {
@@ -83,20 +84,23 @@ exports.handler = async (event, context) => {
       slug = `story-${id}`;
     }
     
-    // Create filename for the markdown file (now storing in submissions directory)
+    // Create filename for the markdown file
     const filename = `${slug}-${id}.md`;
     
     // Format content as markdown with frontmatter
     const content = formatAsMarkdown(data, id, timestamp, slug);
     
-    // For development, just log and return success
+    // Log submission - in production this would be stored in CMS
     console.log("Would save file:", filename);
     console.log("Content:", content);
     
-    // In production, we would save the file to a CMS or database
-    console.log("Submission processed successfully!");
-    
-    // Return success response
+    // NOTE: To actually store submissions in GitHub through Git Gateway,
+    // you would need to make API calls to the Git Gateway endpoint
+    // This requires proper setup in the Netlify UI for Identity and Git Gateway
+    // and is beyond the scope of this simple fix
+
+    // Simply return success with details for now
+    // In production, implement GitHub storage
     return {
       statusCode: 200,
       headers,
