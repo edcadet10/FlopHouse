@@ -4,23 +4,14 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  // Enable trailing slashes for static export compatibility
-  trailingSlash: true,
   // This ensures Next.js generates static HTML files
   output: 'export',
+  // Enable trailing slashes for static export compatibility
+  trailingSlash: false, // Changed to false for cleaner URLs
   // Ensure the public directory is properly copied
   distDir: 'out',
-  // Configure dynamic routes for static export
-  exportPathMap: async function (
-    defaultPathMap,
-    { dev, dir, outDir, distDir, buildId }
-  ) {
-    // Add an explicit index page for story/[id]
-    return {
-      ...defaultPathMap,
-      '/story/[id]': { page: '/story/[id]' },
-    };
-  },
+  // Don't use exportPathMap with App Router
+  // Instead, we're using generateStaticParams in page components
 }
 
 module.exports = nextConfig
