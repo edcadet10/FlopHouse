@@ -38,14 +38,25 @@ export default function BrowsePage() {
     const fetchStories = async () => {
       try {
         setLoading(true)
-        const response = await fetch("/.netlify/functions/get-stories")
+        
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        if (industryFilter !== "all") queryParams.append("industry", industryFilter);
+        if (reasonFilter !== "all") queryParams.append("failureReason", reasonFilter);
+        
+        // Add pagination
+        queryParams.append("page", "1");
+        queryParams.append("limit", "20");
+        
+        const url = `/.netlify/functions/get-stories${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const response = await fetch(url)
         
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`)
         }
         
         const data = await response.json()
-        setStories(data)
+        setStories(data.stories || [])
         setError(null)
       } catch (err) {
         console.error("Failed to fetch stories:", err)
@@ -58,7 +69,7 @@ export default function BrowsePage() {
     }
     
     fetchStories()
-  }, [])
+  }, [industryFilter, reasonFilter])
 
   // Mock data as fallback
   const mockFailures: Story[] = [
