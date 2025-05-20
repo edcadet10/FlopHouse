@@ -171,48 +171,54 @@ export default function SubmitPage() {
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     
-    const isValid = validateStep(currentStep)
-    if (!isValid) return
+    const isValid = validateStep(currentStep);
+    if (!isValid) return;
     
-    setSubmitting(true)
-    setSubmitError(null)
+    setSubmitting(true);
+    setSubmitError(null);
     
     try {
-      // For static export, we'll simulate a successful submission 
-      // In a production app, this would actually submit to an API
+      console.log("Submitting form data:", formState);
       
-      // Try to submit via API if we're in a browser environment 
-      if (typeof window !== 'undefined') {
-        try {
-          const response = await fetch("/.netlify/functions/story-submission", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formState),
-          })
-          
-          const result = await response.json()
-          
-          if (!response.ok) {
-            throw new Error(result.error || "Failed to submit story")
-          }
-        } catch (apiError) {
-          console.error("API submission error:", apiError);
-          // Continue with success flow anyway in static export
-        }
+      // Submit via API
+      const response = await fetch("/.netlify/functions/story-submission", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formState),
+      });
+      
+      console.log("Response status:", response.status);
+      
+      // Parse response JSON
+      let result;
+      try {
+        result = await response.json();
+        console.log("Response data:", result);
+      } catch (jsonError) {
+        console.error("Error parsing response:", jsonError);
+        throw new Error("Invalid response from server");
       }
       
-      setSubmitSuccess(true)
+      // Check if response was successful
+      if (!response.ok) {
+        throw new Error(result.error || result.message || "Failed to submit story");
+      }
+      
+      // If we get here, the submission was successful
+      setSubmitSuccess(true);
       
       // Reset form and scroll to top after success
-      window.scrollTo(0, 0)
+      window.scrollTo(0, 0);
     } catch (error: any) {
-      setSubmitError(error.message || "Something went wrong. Please try again.")
+      console.error("Submission error:", error);
+      setSubmitError(error.message || "Something went wrong. Please try again.");
+      setSubmitSuccess(false);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
