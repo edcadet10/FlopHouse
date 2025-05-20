@@ -130,7 +130,8 @@ export default function Home() {
           </div>
           <h2 className="text-3xl font-bold tracking-tighter md:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-white via-primary to-secondary">Ready to Share Your Story?</h2>
           <p className="max-w-[700px] text-zinc-300 md:text-xl">
-            Your transparency helps others learn. Turn your startup failure into valuable lessons for the community.
+            If you're no longer pursuing an idea, why not share it with lessons learned? 
+            Speed up the ideation process for others in the ecosystem.
           </p>
           {/* Von Restorff Effect - vibrant button for primary action */}
           <Button asChild size="lg" className="mt-4">
@@ -142,26 +143,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="w-full py-6 border-t border-white/10 bg-gradient-to-b from-background to-background/80">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-8">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-400"></div>
-                <span className="text-xl font-bold ml-2 text-white">FlopHouse</span>
-              </div>
-              <span className="text-zinc-500">©2025</span>
-            </div>
-            <div className="flex gap-4 text-zinc-400">
-              <Link href="/about" className="hover:text-cyan-400 transition-colors">About</Link>
-              <Link href="/privacy" className="hover:text-cyan-400 transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-cyan-400 transition-colors">Terms</Link>
-              <Link href="/contact" className="hover:text-cyan-400 transition-colors">Contact</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+
     </main>
   );
 }

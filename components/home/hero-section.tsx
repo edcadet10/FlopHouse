@@ -19,7 +19,7 @@ export function HeroSection() {
         }}
         className="bg-gradient-to-br from-white to-white/80 py-4 bg-clip-text text-center text-5xl font-bold tracking-tight text-transparent md:text-7xl max-w-5xl"
       >
-        Transform Failed Startups <br /> Into Valuable Lessons
+        Open-Source Repository <br /> of Failed Startup Ideas
       </motion.h1>
       
       <motion.p
@@ -32,9 +32,9 @@ export function HeroSection() {
         }}
         className="mt-8 max-w-xl text-center text-zinc-300 md:text-xl"
       >
-        A community-driven platform for sharing and learning
-        from startup failures. Turn your setbacks into
-        stepping stones for the ecosystem.
+        Ideas are cheap. Execution is everything. Share your startup 
+        post-mortems and help others avoid common pitfalls or find 
+        promising ideas with better timing.
       </motion.p>
       
       <motion.div

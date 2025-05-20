@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import React, { useState } from "react"
-import { Sparkles, FileText, Zap, HelpCircle, SendHorizontal, Check, AlertCircle } from "lucide-react"
+import { Sparkles, FileText, Zap, HelpCircle, SendHorizontal, Check, AlertCircle, AlertTriangle } from "lucide-react"
 
 // Form state interface
 interface FormState {

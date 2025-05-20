@@ -76,22 +76,22 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold text-white mb-4">Our Story</h2>
           <div className="flex flex-col gap-6">
             <p className="text-zinc-300">
-              FlopHouse was founded in 2025 by a team of entrepreneurs who had experienced 
-              their own startup failures. After struggling to find comprehensive resources that 
-              openly discussed what went wrong in startup journeys, they decided to create a 
-              platform where these stories could be shared transparently.
+              FlopHouse began as a simple thought shared on social media: "There should be an open 
+              sourced list of failed startup ideas for others to grab." This spark of inspiration 
+              quickly resonated with entrepreneurs who recognized the untapped value in startup 
+              post-mortems.
             </p>
             <p className="text-zinc-300">
-              We recognized that while success stories are celebrated across the startup world, 
-              failures—which often contain the most valuable lessons—are typically hidden away. 
-              This creates an environment where new entrepreneurs repeat the same mistakes, 
-              wasting time, resources, and opportunities.
+              Ideas are cheap, but execution is everything. Sometimes ideas fail not because they 
+              were bad, but because of timing or team fit. If founders are no longer pursuing these 
+              ideas, why not share them—along with lessons learned—to speed up the ideation process 
+              for others?
             </p>
             <p className="text-zinc-300">
-              Our goal is to democratize access to these learning experiences, helping 
-              founders build stronger, more resilient businesses. We believe that recognizing 
-              failure as a natural part of innovation removes stigma and creates a more supportive 
-              entrepreneurial environment.
+              This platform transforms individual setbacks into community wisdom. We believe 
+              that by creating a space where founders can openly share their post-mortems, we 
+              can collectively accelerate learning, reduce common mistakes, and build a more 
+              resilient entrepreneurial ecosystem.
             </p>
           </div>
         </Card>
