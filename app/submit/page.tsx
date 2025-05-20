@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Sparkles, FileText, Zap, HelpCircle, SendHorizontal, Save, Check, AlertCircle } from "lucide-react"
 
 // Form state interface
@@ -113,13 +113,23 @@ export default function SubmitPage() {
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
-    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined
+    const { name, value, type } = e.target;
+    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
     
+    // Use a functional update to ensure we're always working with the latest state
     setFormState(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? !!checked : value
-    }))
+    }));
+    
+    // Clear any existing error for this field when the user changes it
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   }
 
   // Basic validation function
@@ -222,14 +232,8 @@ export default function SubmitPage() {
     }
   }
 
-  // Creating UI components for form
-  const Input = ({ label, placeholder, type = "text", name, required = false }: {
-    label: string;
-    placeholder: string;
-    type?: string;
-    name: keyof FormState;
-    required?: boolean;
-  }) => (
+  // Creating UI components for form with React.memo to prevent unnecessary re-renders
+  const Input = React.memo(({ label, placeholder, type = "text", name, required = false }: InputProps) => (
     <div className="mb-4">
       <label className="block text-sm font-medium text-zinc-300 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
@@ -238,21 +242,16 @@ export default function SubmitPage() {
         type={type}
         placeholder={placeholder}
         name={name}
-        value={formState[name as keyof FormState] as string}
+        value={formState[name] as string}
         onChange={handleChange}
         className={`w-full h-10 px-3 py-2 bg-white/5 border ${errors[name] ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
+        autoComplete="off"
       />
       {errors[name] && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{errors[name]}</p>}
     </div>
-  )
+  ));
 
-  const Textarea = ({ label, placeholder, name, rows = 4, required = false }: {
-    label: string;
-    placeholder: string;
-    name: keyof FormState;
-    rows?: number;
-    required?: boolean;
-  }) => (
+  const Textarea = React.memo(({ label, placeholder, name, rows = 4, required = false }: TextareaProps) => (
     <div className="mb-4">
       <label className="block text-sm font-medium text-zinc-300 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
@@ -260,28 +259,23 @@ export default function SubmitPage() {
       <textarea
         placeholder={placeholder}
         name={name}
-        value={formState[name as keyof FormState] as string}
+        value={formState[name] as string}
         onChange={handleChange}
         rows={rows}
         className={`w-full px-3 py-2 bg-white/5 border ${errors[name] ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
       />
       {errors[name] && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{errors[name]}</p>}
     </div>
-  )
+  ));
 
-  const Select = ({ label, options, name, required = false }: {
-    label: string;
-    options: { value: string; label: string }[];
-    name: keyof FormState;
-    required?: boolean;
-  }) => (
+  const Select = React.memo(({ label, options, name, required = false }: SelectProps) => (
     <div className="mb-4">
       <label className="block text-sm font-medium text-zinc-300 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <select
         name={name}
-        value={formState[name as keyof FormState] as string}
+        value={formState[name] as string}
         onChange={handleChange}
         className={`w-full h-10 px-3 py-2 bg-white/5 border ${errors[name] ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
       >
@@ -293,17 +287,14 @@ export default function SubmitPage() {
       </select>
       {errors[name] && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{errors[name]}</p>}
     </div>
-  )
+  ));
 
-  const Checkbox = ({ label, name }: {
-    label: string;
-    name: keyof FormState;
-  }) => (
+  const Checkbox = React.memo(({ label, name }: CheckboxProps) => (
     <div className="mb-4 flex items-start">
       <input
         type="checkbox"
         name={name}
-        checked={formState[name as keyof FormState] as boolean}
+        checked={formState[name] as boolean}
         onChange={handleChange}
         id={name}
         className="h-4 w-4 mt-1 rounded border-white/10 bg-white/5 text-cyan-500 focus:ring-cyan-500"
@@ -313,7 +304,7 @@ export default function SubmitPage() {
       </label>
       {errors[name] && <p className="mt-1 text-sm text-red-500">{errors[name]}</p>}
     </div>
-  )
+  ));
 
   // Progress steps component
   const ProgressSteps = ({ currentStep, totalSteps }: {
