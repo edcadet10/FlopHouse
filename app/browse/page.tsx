@@ -7,10 +7,24 @@ import { useState, useEffect } from "react"
 import { Search, Filter, Zap, PieChart, TrendingUp, Flame, MoveUpRight, Sparkles } from "lucide-react"
 
 export default function BrowsePage() {
+  // Define the story type
+  type Story = {
+    id: number;
+    title: string;
+    companyName: string;
+    industry: string;
+    fundingAmount: string;
+    failureReason: string;
+    summary: string;
+    date: string;
+    readTime: string;
+    upvotes: number;
+  }
+  
   // State for stories
-  const [stories, setStories] = useState([])
+  const [stories, setStories] = useState<Story[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   
   // Filter state
   const [industryFilter, setIndustryFilter] = useState("all")
@@ -47,7 +61,7 @@ export default function BrowsePage() {
   }, [])
 
   // Mock data as fallback
-  const mockFailures = [
+  const mockFailures: Story[] = [
     {
       id: 1,
       title: "TaskMaster: What Went Wrong",
