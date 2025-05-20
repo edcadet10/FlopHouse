@@ -13,13 +13,13 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)](https://www.typescriptlang.org/)
 
 <p align="center">
-  <a href="#✨-key-features">Key Features</a> •
-  <a href="#🛠️-tech-stack">Tech Stack</a> •
-  <a href="#💻-getting-started">Getting Started</a> •
-  <a href="#🔄-workflows">Workflows</a> •
-  <a href="#🏗️-architecture">Architecture</a> •
-  <a href="#🚀-deployment">Deployment</a> •
-  <a href="#📚-learn-more">Learn More</a>
+  <b>Key Features</b> &nbsp;|&nbsp; 
+  <b>Tech Stack</b> &nbsp;|&nbsp; 
+  <b>Getting Started</b> &nbsp;|&nbsp; 
+  <b>Workflows</b> &nbsp;|&nbsp; 
+  <b>Architecture</b> &nbsp;|&nbsp; 
+  <b>Deployment</b> &nbsp;|&nbsp; 
+  <b>Learn More</b>
 </p>
 
 </div>
