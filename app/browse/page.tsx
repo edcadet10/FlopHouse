@@ -19,6 +19,7 @@ export default function BrowsePage() {
     date: string;
     readTime: string;
     upvotes: number;
+    slug: string; // Add the slug property
   }
   
   // State for stories
