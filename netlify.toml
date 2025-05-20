@@ -16,3 +16,9 @@
   to = "/admin/index.html"
   status = 200
   force = true
+
+# Handle dynamic routes for story pages
+[[redirects]]
+  from = "/story/*"
+  to = "/story/[id]/index.html"
+  status = 200

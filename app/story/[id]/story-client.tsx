@@ -3,17 +3,43 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle } from "lucide-react"
+import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react"
+
+// Comment interface
+interface Comment {
+  id: string;
+  name: string;
+  comment: string;
+  date: string;
+}
+
+// Format comment date
+function formatCommentDate(dateString: string) {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+}
 
 // Story client component
-// No mock data - we'll use real data from the API
-
 export default function StoryClient({ params }: { params: { id: string } }) {
   const [story, setStory] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [upvoting, setUpvoting] = useState(false)
   const [upvoted, setUpvoted] = useState(false)
+  
+  // Comments state
+  const [comments, setComments] = useState<Comment[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [commentName, setCommentName] = useState("")
+  const [commentText, setCommentText] = useState("")
+  const [submittingComment, setSubmittingComment] = useState(false)
+  const [commentError, setCommentError] = useState<string | null>(null)
   
   useEffect(() => {
     const loadStory = async () => {
@@ -55,7 +81,75 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         setUpvoted(upvotedList.includes(params.id));
       }
     }
+    
+    // Load comments
+    loadComments();
   }, [params.id]);
+  
+  // Load comments for this story
+  const loadComments = async () => {
+    try {
+      setLoadingComments(true);
+      
+      const response = await fetch(`/.netlify/functions/story-comments/${params.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error loading comments: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setComments(data.comments || []);
+      setCommentError(null);
+    } catch (err: any) {
+      console.error("Failed to load comments:", err);
+      setCommentError("Failed to load comments. Please try again later.");
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+  
+  // Handle comment submission
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!commentName.trim() || !commentText.trim()) {
+      setCommentError("Name and comment are required");
+      return;
+    }
+    
+    try {
+      setSubmittingComment(true);
+      setCommentError(null);
+      
+      const response = await fetch(`/.netlify/functions/story-comments/${params.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: commentName,
+          comment: commentText
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit comment");
+      }
+      
+      // Reset form fields
+      setCommentName("");
+      setCommentText("");
+      
+      // Reload comments
+      await loadComments();
+    } catch (err: any) {
+      console.error("Failed to submit comment:", err);
+      setCommentError(err.message || "Failed to submit comment. Please try again later.");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
   
   // Handle upvote
   const handleUpvote = async () => {
@@ -206,7 +300,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         </div>
         
         {/* Engagement footer */}
-        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
           <div className="flex items-center">
             <Button 
               variant={upvoted ? "default" : "outline"}
@@ -228,6 +322,94 @@ export default function StoryClient({ params }: { params: { id: string } }) {
               </Link>
             </Button>
           </div>
+        </div>
+        
+        {/* Comments section */}
+        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 md:p-8 mb-8">
+          <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+            <MessageCircle className="h-5 w-5 mr-2 text-cyan-500" />
+            Comments {comments.length > 0 && `(${comments.length})`}
+          </h2>
+          
+          {/* Comment form */}
+          <form onSubmit={handleSubmitComment} className="mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-zinc-300 mb-1">
+                  Your Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={commentName}
+                  onChange={(e) => setCommentName(e.target.value)}
+                  className="w-full h-10 px-3 py-2 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white"
+                  placeholder="Enter your name"
+                />
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="comment" className="block text-sm font-medium text-zinc-300 mb-1">
+                Your Comment
+              </label>
+              <textarea
+                id="comment"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white"
+                rows={4}
+                placeholder="Share your thoughts..."
+              />
+            </div>
+            
+            {commentError && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-400 text-sm">
+                {commentError}
+              </div>
+            )}
+            
+            <Button 
+              type="submit" 
+              disabled={submittingComment || !commentName.trim() || !commentText.trim()}
+              className="flex items-center"
+            >
+              {submittingComment ? (
+                <>
+                  <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Post Comment
+                </>
+              )}
+            </Button>
+          </form>
+          
+          {/* Comments list */}
+          {loadingComments ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
+            </div>
+          ) : comments.length > 0 ? (
+            <div className="space-y-6">
+              {comments.map((comment) => (
+                <div key={comment.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="font-medium text-cyan-300">{comment.name}</span>
+                    <span className="text-xs text-zinc-500">{formatCommentDate(comment.date)}</span>
+                  </div>
+                  <p className="text-zinc-300">{comment.comment}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-zinc-400">No comments yet. Be the first to share your thoughts!</p>
+            </div>
+          )}
         </div>
       </div>
     </main>
