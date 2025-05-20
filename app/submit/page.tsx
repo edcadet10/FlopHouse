@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import React, { useState } from "react"
-import { Sparkles, FileText, Zap, HelpCircle, SendHorizontal, Save, Check, AlertCircle } from "lucide-react"
+import { Sparkles, FileText, Zap, HelpCircle, SendHorizontal, Check, AlertCircle } from "lucide-react"
 
 // Form state interface
 interface FormState {
@@ -30,6 +30,8 @@ interface InputProps {
   placeholder: string;
   type?: string;
   name: keyof FormState;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   required?: boolean;
 }
@@ -39,7 +41,10 @@ interface TextareaProps {
   label: string;
   placeholder: string;
   name: keyof FormState;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   rows?: number;
+  error?: string;
   required?: boolean;
 }
 
@@ -48,6 +53,9 @@ interface SelectProps {
   label: string;
   options: { value: string; label: string }[];
   name: keyof FormState;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  error?: string;
   required?: boolean;
 }
 
@@ -55,6 +63,9 @@ interface SelectProps {
 interface CheckboxProps {
   label: string;
   name: keyof FormState;
+  checked: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
 }
 
 // Progress steps component props
@@ -62,6 +73,148 @@ interface ProgressStepsProps {
   currentStep: number;
   totalSteps: number;
 }
+
+// Define form components OUTSIDE of the main component
+// This ensures they don't get recreated on every render
+const FormInput = ({ 
+  label, 
+  placeholder, 
+  type = "text", 
+  name, 
+  value, 
+  onChange, 
+  error, 
+  required = false 
+}: InputProps) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-zinc-300 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <input
+      type={type}
+      placeholder={placeholder}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className={`w-full h-10 px-3 py-2 bg-white/5 border ${error ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
+    />
+    {error && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{error}</p>}
+  </div>
+);
+
+const FormTextarea = ({ 
+  label, 
+  placeholder, 
+  name, 
+  value, 
+  onChange, 
+  rows = 4, 
+  error, 
+  required = false 
+}: TextareaProps) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-zinc-300 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <textarea
+      placeholder={placeholder}
+      name={name}
+      value={value}
+      onChange={onChange}
+      rows={rows}
+      className={`w-full px-3 py-2 bg-white/5 border ${error ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
+    />
+    {error && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{error}</p>}
+  </div>
+);
+
+const FormSelect = ({ 
+  label, 
+  options, 
+  name, 
+  value, 
+  onChange, 
+  error, 
+  required = false 
+}: SelectProps) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-zinc-300 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className={`w-full h-10 px-3 py-2 bg-white/5 border ${error ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+    {error && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{error}</p>}
+  </div>
+);
+
+const FormCheckbox = ({ 
+  label, 
+  name, 
+  checked, 
+  onChange, 
+  error 
+}: CheckboxProps) => (
+  <div className="mb-4 flex items-start">
+    <input
+      type="checkbox"
+      name={name}
+      checked={checked}
+      onChange={onChange}
+      id={name}
+      className="h-4 w-4 mt-1 rounded border-white/10 bg-white/5 text-cyan-500 focus:ring-cyan-500"
+    />
+    <label htmlFor={name} className="ml-2 block text-sm text-zinc-300">
+      {label}
+    </label>
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+  </div>
+);
+
+const ProgressSteps = ({ currentStep, totalSteps }: ProgressStepsProps) => (
+  <div className="w-full mb-8">
+    <div className="flex items-center justify-between">
+      {Array.from({ length: totalSteps }).map((_, i) => (
+        <div key={i} className="flex items-center">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            i < currentStep 
+              ? 'bg-cyan-500 text-white' 
+              : i === currentStep 
+                ? 'bg-cyan-500/80 text-white animate-pulse' 
+                : 'bg-white/5 text-zinc-400'
+          }`}>
+            {i < currentStep ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <span>{i + 1}</span>
+            )}
+          </div>
+          {i < totalSteps - 1 && (
+            <div className={`h-1 w-24 ${
+              i < currentStep 
+                ? 'bg-cyan-500' 
+                : 'bg-white/5'
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+    <div className="flex justify-between mt-2">
+      <span className="text-xs text-zinc-400">Basic Info</span>
+      <span className="text-xs text-zinc-400">What Happened</span>
+      <span className="text-xs text-zinc-400">Lessons & Contact</span>
+    </div>
+  </div>
+);
 
 export default function SubmitPage() {
   // Form state
@@ -75,14 +228,14 @@ export default function SubmitPage() {
     lessons: '',
     email: '',
     marketingConsent: false
-  })
+  });
   
   // Current step in the multi-step form
-  const [currentStep, setCurrentStep] = useState(0)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const [errors, setErrors] = useState<FormErrors>({})
+  const [currentStep, setCurrentStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   // Industry options
   const industries = [
@@ -96,7 +249,7 @@ export default function SubmitPage() {
     { value: "marketplace", label: "Marketplace" },
     { value: "hardware", label: "Hardware" },
     { value: "other", label: "Other" },
-  ]
+  ];
 
   // Failure reasons
   const failureReasons = [
@@ -109,69 +262,74 @@ export default function SubmitPage() {
     { value: "timing", label: "Market Timing" },
     { value: "technology", label: "Technical Challenges" },
     { value: "other", label: "Other" },
-  ]
+  ];
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    console.log(`Input change - Field: ${name}, Value: ${value}`);
     const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
     
-    setFormState(prev => {
-      console.log('Previous state:', prev);
-      return {
-        ...prev,
-        [name]: type === 'checkbox' ? !!checked : value
-      };
-    });
-  }
+    setFormState(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? !!checked : value
+    }));
+    
+    // Clear any existing error for this field when the user changes it
+    if (errors[name as keyof FormState]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name as keyof FormState];
+        return newErrors;
+      });
+    }
+  };
 
   // Basic validation function
   const validateStep = (step: number): boolean => {
-    const newErrors: FormErrors = {}
+    const newErrors: FormErrors = {};
     
     if (step === 0) {
-      if (!formState.title) newErrors.title = "Title is required"
-      else if (formState.title.length < 5) newErrors.title = "Title must be at least 5 characters"
+      if (!formState.title) newErrors.title = "Title is required";
+      else if (formState.title.length < 5) newErrors.title = "Title must be at least 5 characters";
       
-      if (!formState.companyName) newErrors.companyName = "Company name is required"
-      if (!formState.industry) newErrors.industry = "Please select an industry"
+      if (!formState.companyName) newErrors.companyName = "Company name is required";
+      if (!formState.industry) newErrors.industry = "Please select an industry";
     }
     
     if (step === 1) {
-      if (!formState.failureReason) newErrors.failureReason = "Please select a failure reason"
-      if (!formState.story) newErrors.story = "Story is required"
-      else if (formState.story.length < 50) newErrors.story = "Story must be at least 50 characters"
+      if (!formState.failureReason) newErrors.failureReason = "Please select a failure reason";
+      if (!formState.story) newErrors.story = "Story is required";
+      else if (formState.story.length < 50) newErrors.story = "Story must be at least 50 characters";
     }
     
     if (step === 2) {
       if (formState.email && !validateEmail(formState.email)) {
-        newErrors.email = "Please enter a valid email"
+        newErrors.email = "Please enter a valid email";
       }
     }
     
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   
   const validateEmail = (email: string): boolean => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(email)
-  }
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
 
   // Move to next step after validation
   const handleNextStep = () => {
-    const isValid = validateStep(currentStep)
+    const isValid = validateStep(currentStep);
     
     if (isValid) {
-      setCurrentStep(prev => Math.min(prev + 1, 2))
+      setCurrentStep(prev => Math.min(prev + 1, 2));
     }
-  }
+  };
 
   // Move to previous step
   const handlePrevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0))
-  }
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,121 +382,7 @@ export default function SubmitPage() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  // Creating UI components for form with React.memo to prevent unnecessary re-renders
-  const Input = React.memo(({ label, placeholder, type = "text", name, required = false }: InputProps) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-zinc-300 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        name={name}
-        value={formState[name] as string}
-        onChange={handleChange}
-        className={`w-full h-10 px-3 py-2 bg-white/5 border ${errors[name] ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
-        autoComplete="off"
-      />
-      {errors[name] && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{errors[name]}</p>}
-    </div>
-  ));
-
-  const Textarea = React.memo(({ label, placeholder, name, rows = 4, required = false }: TextareaProps) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-zinc-300 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <textarea
-        placeholder={placeholder}
-        name={name}
-        value={formState[name] as string}
-        onChange={handleChange}
-        rows={rows}
-        className={`w-full px-3 py-2 bg-white/5 border ${errors[name] ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
-      />
-      {errors[name] && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{errors[name]}</p>}
-    </div>
-  ));
-
-  const Select = React.memo(({ label, options, name, required = false }: SelectProps) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-zinc-300 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <select
-        name={name}
-        value={formState[name] as string}
-        onChange={handleChange}
-        className={`w-full h-10 px-3 py-2 bg-white/5 border ${errors[name] ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {errors[name] && <p className="mt-1 text-sm text-red-500 flex items-center"><AlertCircle className="h-3 w-3 mr-1" />{errors[name]}</p>}
-    </div>
-  ));
-
-  const Checkbox = React.memo(({ label, name }: CheckboxProps) => (
-    <div className="mb-4 flex items-start">
-      <input
-        type="checkbox"
-        name={name}
-        checked={formState[name] as boolean}
-        onChange={handleChange}
-        id={name}
-        className="h-4 w-4 mt-1 rounded border-white/10 bg-white/5 text-cyan-500 focus:ring-cyan-500"
-      />
-      <label htmlFor={name} className="ml-2 block text-sm text-zinc-300">
-        {label}
-      </label>
-      {errors[name] && <p className="mt-1 text-sm text-red-500">{errors[name]}</p>}
-    </div>
-  ));
-
-  // Progress steps component
-  const ProgressSteps = ({ currentStep, totalSteps }: {
-    currentStep: number;
-    totalSteps: number;
-  }) => (
-    <div className="w-full mb-8">
-      <div className="flex items-center justify-between">
-        {Array.from({ length: totalSteps }).map((_, i) => (
-          <div key={i} className="flex items-center">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              i < currentStep 
-                ? 'bg-cyan-500 text-white' 
-                : i === currentStep 
-                  ? 'bg-cyan-500/80 text-white animate-pulse' 
-                  : 'bg-white/5 text-zinc-400'
-            }`}>
-              {i < currentStep ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <span>{i + 1}</span>
-              )}
-            </div>
-            {i < totalSteps - 1 && (
-              <div className={`h-1 w-24 ${
-                i < currentStep 
-                  ? 'bg-cyan-500' 
-                  : 'bg-white/5'
-              }`} />
-            )}
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-between mt-2">
-        <span className="text-xs text-zinc-400">Basic Info</span>
-        <span className="text-xs text-zinc-400">What Happened</span>
-        <span className="text-xs text-zinc-400">Lessons & Contact</span>
-      </div>
-    </div>
-  )
+  };
 
   // Show success message after submission
   if (submitSuccess) {
@@ -377,7 +421,7 @@ export default function SubmitPage() {
           </Card>
         </div>
       </main>
-    )
+    );
   }
 
   return (
@@ -450,30 +494,42 @@ export default function SubmitPage() {
                 <FileText className="inline-block h-5 w-5 mr-2 text-cyan-500" />
                 Startup Information
               </h2>
-              <Input 
+              <FormInput 
                 label="Post Title"
                 placeholder="E.g., 'Why Our AI Shopping Assistant Failed to Gain Traction'"
                 name="title"
+                value={formState.title}
+                onChange={handleChange}
+                error={errors.title}
                 required
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input 
+                <FormInput 
                   label="Company Name"
                   placeholder="What was your startup called?"
                   name="companyName"
+                  value={formState.companyName}
+                  onChange={handleChange}
+                  error={errors.companyName}
                   required
                 />
-                <Select 
+                <FormSelect 
                   label="Industry"
                   options={industries}
                   name="industry"
+                  value={formState.industry}
+                  onChange={handleChange}
+                  error={errors.industry}
                   required
                 />
               </div>
-              <Input 
+              <FormInput 
                 label="Funding Raised"
                 placeholder="E.g., Bootstrapped, $50K Angel, $1.2M Seed"
                 name="fundingAmount"
+                value={formState.fundingAmount}
+                onChange={handleChange}
+                error={errors.fundingAmount}
               />
             </div>
           )}
@@ -485,16 +541,22 @@ export default function SubmitPage() {
                 <Zap className="inline-block h-5 w-5 mr-2 text-cyan-500" />
                 What Happened?
               </h2>
-              <Select 
+              <FormSelect 
                 label="Primary Reason for Failure"
                 options={failureReasons}
                 name="failureReason"
+                value={formState.failureReason}
+                onChange={handleChange}
+                error={errors.failureReason}
                 required
               />
-              <Textarea 
+              <FormTextarea 
                 label="Your Story"
                 placeholder="Share the journey of your startup and what led to its closure..."
                 name="story"
+                value={formState.story}
+                onChange={handleChange}
+                error={errors.story}
                 rows={8}
                 required
               />
@@ -508,10 +570,13 @@ export default function SubmitPage() {
                 <Sparkles className="inline-block h-5 w-5 mr-2 text-cyan-500" />
                 Lessons & Contact
               </h2>
-              <Textarea 
+              <FormTextarea 
                 label="Key Takeaways"
                 placeholder="What did you learn from this experience? What would you do differently?"
                 name="lessons"
+                value={formState.lessons}
+                onChange={handleChange}
+                error={errors.lessons}
                 rows={6}
               />
               <div className="mt-8 mb-4">
@@ -520,15 +585,21 @@ export default function SubmitPage() {
                   We respect your privacy and will never share your email without permission.
                 </p>
               </div>
-              <Input 
+              <FormInput 
                 label="Email"
                 type="email"
                 placeholder="your@email.com"
                 name="email"
+                value={formState.email}
+                onChange={handleChange}
+                error={errors.email}
               />
-              <Checkbox 
+              <FormCheckbox 
                 label="I agree to receive occasional updates about FlopHouse and startup insights."
                 name="marketingConsent"
+                checked={formState.marketingConsent}
+                onChange={handleChange}
+                error={errors.marketingConsent}
               />
             </div>
           )}
@@ -579,5 +650,5 @@ export default function SubmitPage() {
         </form>
       </div>
     </main>
-  )
+  );
 }
