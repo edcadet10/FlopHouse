@@ -1,0 +1,81 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+    <radialGradient id="glow1" cx="30%" cy="30%" r="50%" fx="30%" fy="30%">
+      <stop offset="0%" stop-color="#0EA5E9" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glow2" cx="70%" cy="70%" r="50%" fx="70%" fy="70%">
+      <stop offset="0%" stop-color="#F472B6" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#F472B6" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Base -->
+  <rect width="1200" height="300" rx="12" fill="url(#bg-gradient)" />
+  
+  <!-- Glows -->
+  <circle cx="400" cy="100" r="300" fill="url(#glow1)" />
+  <circle cx="800" cy="200" r="300" fill="url(#glow2)" />
+  
+  <!-- Grid -->
+  <g opacity="0.07">
+    <path d="M0 50 H1200" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M0 100 H1200" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M0 150 H1200" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M0 200 H1200" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M0 250 H1200" stroke="#CBD5E1" stroke-width="0.5" />
+    
+    <path d="M50 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M150 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M250 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M350 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M450 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M550 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M650 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M750 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M850 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M950 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M1050 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+    <path d="M1150 0 V300" stroke="#CBD5E1" stroke-width="0.5" />
+  </g>
+  
+  <!-- Logo -->
+  <g transform="translate(150, 100) scale(0.5)">
+    <rect width="200" height="200" rx="30" fill="#0F172A"/>
+    <path d="M50 60H150V140C150 145.523 145.523 150 140 150H60C54.4772 150 50 145.523 50 140V60Z" fill="#1E293B"/>
+    <path d="M65 45H135C140.523 45 145 49.4772 145 55V60H55V55C55 49.4772 59.4772 45 65 45Z" fill="#0EA5E9"/>
+    <path d="M75 60V75H85V60H75Z" fill="#0EA5E9"/>
+    <path d="M115 60V75H125V60H115Z" fill="#0EA5E9"/>
+    <path d="M95 90H105V120C105 125.523 100.523 130 95 130V90Z" fill="#0EA5E9"/>
+    <path d="M65 90H85V110H65V90Z" fill="#334155"/>
+    <path d="M115 90H135V110H115V90Z" fill="#334155"/>
+    <path d="M70 70C70 67.2386 72.2386 65 75 65H85C87.7614 65 90 67.2386 90 70V120H70V70Z" fill="#475569"/>
+    <path d="M110 70C110 67.2386 112.239 65 115 65H125C127.761 65 130 67.2386 130 70V120H110V70Z" fill="#475569"/>
+    <circle cx="80" cy="100" r="5" fill="#0EA5E9"/>
+    <circle cx="120" cy="100" r="5" fill="#0EA5E9"/>
+  </g>
+  
+  <!-- Text -->
+  <g>
+    <text x="320" y="140" font-family="Arial, sans-serif" font-weight="800" font-size="72" fill="white">FLOPHOUSE</text>
+    <text x="320" y="180" font-family="Arial, sans-serif" font-weight="400" font-size="24" fill="#94A3B8">Transform Failed Startups Into Valuable Lessons</text>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g fill="#0EA5E9" opacity="0.8">
+    <circle cx="960" cy="100" r="5" />
+    <circle cx="980" cy="120" r="3" />
+    <circle cx="1000" cy="90" r="4" />
+    <circle cx="1020" cy="130" r="2" />
+    <circle cx="1040" cy="110" r="6" />
+    <circle cx="1060" cy="80" r="3" />
+  </g>
+  
+  <!-- Bottom Line -->
+  <path d="M150 230 H1050" stroke="#0EA5E9" stroke-width="1" opacity="0.6" />
+</svg>

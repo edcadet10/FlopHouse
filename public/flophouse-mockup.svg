@@ -1,0 +1,100 @@
+<svg width="1000" height="500" viewBox="0 0 1000 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+    <radialGradient id="glow1" cx="30%" cy="30%" r="30%" fx="30%" fy="30%">
+      <stop offset="0%" stop-color="#0EA5E9" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glow2" cx="70%" cy="70%" r="30%" fx="70%" fy="70%">
+      <stop offset="0%" stop-color="#F472B6" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#F472B6" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Base -->
+  <rect width="1000" height="500" rx="12" fill="url(#bg-gradient)" />
+  
+  <!-- Glows -->
+  <circle cx="300" cy="150" r="300" fill="url(#glow1)" />
+  <circle cx="700" cy="350" r="300" fill="url(#glow2)" />
+  
+  <!-- Browser Frame -->
+  <rect x="100" y="60" width="800" height="380" rx="8" fill="#111827" stroke="#334155" stroke-width="2" />
+  <rect x="100" y="60" width="800" height="30" rx="8 8 0 0" fill="#1E293B" stroke="#334155" stroke-width="2" />
+  <circle cx="120" cy="75" r="6" fill="#EF4444" />
+  <circle cx="140" cy="75" r="6" fill="#F97316" />
+  <circle cx="160" cy="75" r="6" fill="#10B981" />
+  <rect x="200" y="67" width="600" height="16" rx="4" fill="#334155" />
+  
+  <!-- Header -->
+  <rect x="120" y="110" width="760" height="80" rx="4" fill="#0F172A" stroke="#334155" stroke-width="1" />
+  <circle cx="150" cy="150" r="20" fill="#0EA5E9" />
+  <text x="190" y="145" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="white">FlopHouse</text>
+  <text x="190" y="165" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">A sanctuary for startup failure stories</text>
+  
+  <rect x="650" y="130" width="100" height="30" rx="15" fill="#0EA5E9" />
+  <text x="700" y="150" font-family="Arial, sans-serif" font-weight="500" font-size="14" fill="white" text-anchor="middle">Submit</text>
+  
+  <rect x="760" y="130" width="100" height="30" rx="15" fill="transparent" stroke="#0EA5E9" stroke-width="1" />
+  <text x="810" y="150" font-family="Arial, sans-serif" font-weight="500" font-size="14" fill="white" text-anchor="middle">Browse</text>
+  
+  <!-- Hero Section -->
+  <rect x="120" y="210" width="760" height="180" rx="4" fill="#1E293B" />
+  
+  <!-- Hero Content -->
+  <text x="500" y="270" font-family="Arial, sans-serif" font-weight="800" font-size="32" fill="white" text-anchor="middle">Transform Failed Startups</text>
+  <text x="500" y="310" font-family="Arial, sans-serif" font-weight="800" font-size="32" fill="white" text-anchor="middle">Into Valuable Lessons</text>
+  
+  <rect x="400" y="340" width="200" height="35" rx="18" fill="#0EA5E9" />
+  <text x="500" y="364" font-family="Arial, sans-serif" font-weight="500" font-size="16" fill="white" text-anchor="middle">Browse Stories</text>
+  
+  <!-- Cards -->
+  <rect x="120" y="410" width="240" height="160" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1" />
+  <rect x="120" y="410" width="240" height="40" rx="4" fill="#0F172A" />
+  <text x="140" y="435" font-family="Arial, sans-serif" font-weight="500" font-size="14" fill="white">TaskMaster: What Went Wrong</text>
+  <text x="140" y="465" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    A deep dive into how we misunderstood
+  </text>
+  <text x="140" y="485" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    the market need and built features
+  </text>
+  <text x="140" y="505" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    nobody wanted.
+  </text>
+  <rect x="140" y="525" width="140" height="22" rx="11" fill="#0F172A" />
+  <text x="210" y="540" font-family="Arial, sans-serif" font-weight="400" font-size="10" fill="#0EA5E9" text-anchor="middle">Product-Market Fit</text>
+  
+  <rect x="380" y="410" width="240" height="160" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1" />
+  <rect x="380" y="410" width="240" height="40" rx="4" fill="#0F172A" />
+  <text x="400" y="435" font-family="Arial, sans-serif" font-weight="500" font-size="14" fill="white">CodeBuddy: Our Journey</text>
+  <text x="400" y="465" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    We built a great product that developers
+  </text>
+  <text x="400" y="485" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    loved, but our business model couldn't
+  </text>
+  <text x="400" y="505" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    sustain growth.
+  </text>
+  <rect x="400" y="525" width="140" height="22" rx="11" fill="#0F172A" />
+  <text x="470" y="540" font-family="Arial, sans-serif" font-weight="400" font-size="10" fill="#0EA5E9" text-anchor="middle">Business Model</text>
+  
+  <rect x="640" y="410" width="240" height="160" rx="4" fill="#1E293B" stroke="#334155" stroke-width="1" />
+  <rect x="640" y="410" width="240" height="40" rx="4" fill="#0F172A" />
+  <text x="660" y="435" font-family="Arial, sans-serif" font-weight="500" font-size="14" fill="white">LaunchNow: No-Code Failure</text>
+  <text x="660" y="465" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    Our no-code platform gained early
+  </text>
+  <text x="660" y="485" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    traction but failed to convert free
+  </text>
+  <text x="660" y="505" font-family="Arial, sans-serif" font-weight="400" font-size="12" fill="#94A3B8">
+    users to paying customers.
+  </text>
+  <rect x="660" y="525" width="140" height="22" rx="11" fill="#0F172A" />
+  <text x="730" y="540" font-family="Arial, sans-serif" font-weight="400" font-size="10" fill="#0EA5E9" text-anchor="middle">Monetization</text>
+</svg>
