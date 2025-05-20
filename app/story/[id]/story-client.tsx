@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react"
+import { useStoryFetcher } from "@/lib/story-fetcher"
 
 // Comment interface
 interface Comment {
@@ -27,9 +28,9 @@ function formatCommentDate(dateString: string) {
 
 // Story client component
 export default function StoryClient({ params }: { params: { id: string } }) {
-  const [story, setStory] = useState<any | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // Use the story fetcher hook
+  const { story, loading, error } = useStoryFetcher(params.id);
+  
   const [upvoting, setUpvoting] = useState(false)
   const [upvoted, setUpvoted] = useState(false)
   
@@ -42,74 +43,27 @@ export default function StoryClient({ params }: { params: { id: string } }) {
   const [commentError, setCommentError] = useState<string | null>(null)
   
   useEffect(() => {
-    const loadStory = async () => {
-      try {
-        setLoading(true);
-        
-        // Check if we have the story data in sessionStorage first
-        if (typeof window !== 'undefined') {
-          const storedStoryData = sessionStorage.getItem('currentStory');
-          if (storedStoryData) {
-            // Clear it to prevent stale data on refresh
-            sessionStorage.removeItem('currentStory');
-            
-            const parsedData = JSON.parse(storedStoryData);
-            setStory(parsedData);
-            setError(null);
-            setLoading(false);
-            return; // Exit early if we have the data
-          }
-        }
-        
-        // Get the slug from params.id
-        const slug = params.id;
-        
-        // Log the slug for debugging
-        console.log("Fetching story with slug:", slug);
-        
-        // Always try to fetch from API - fix: use /api prefix which is redirected to /.netlify/functions
-        const response = await fetch(`/api/get-story/${slug}`);
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error("Story not found");
-          }
-          throw new Error(`Error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setStory(data);
-        setError(null);
-      } catch (err: any) {
-        console.error("Failed to load story:", err);
-        setError(err.message || "Failed to load story. Please try again later.");
-        setStory(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadStory();
-    
     // Check if user has upvoted this story before
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && story) {
       const upvotedStories = localStorage.getItem('upvotedStories');
       if (upvotedStories) {
         const upvotedList = JSON.parse(upvotedStories);
-        setUpvoted(upvotedList.includes(params.id));
+        setUpvoted(upvotedList.includes(story.id));
       }
+      
+      // Load comments for this story
+      loadComments();
     }
-    
-    // Load comments
-    loadComments();
-  }, [params.id]);
+  }, [story]);
   
   // Load comments for this story
   const loadComments = async () => {
+    if (!story) return;
+    
     try {
       setLoadingComments(true);
       
-      const response = await fetch(`/.netlify/functions/story-comments/${params.id}`);
+      const response = await fetch(`/api/story-comments/${story.id}`);
       
       if (!response.ok) {
         throw new Error(`Error loading comments: ${response.status}`);
@@ -130,6 +84,8 @@ export default function StoryClient({ params }: { params: { id: string } }) {
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!story) return;
+    
     if (!commentName.trim() || !commentText.trim()) {
       setCommentError("Name and comment are required");
       return;
@@ -139,7 +95,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       setSubmittingComment(true);
       setCommentError(null);
       
-      const response = await fetch(`/.netlify/functions/story-comments/${params.id}`, {
+      const response = await fetch(`/api/story-comments/${story.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -176,9 +132,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
     setUpvoting(true);
     
     try {
-      // For static export, we'll just handle this on the client side
-      // In a production app, you'd call an API endpoint
-      setStory((prev: any) => prev ? { ...prev, upvotes: prev.upvotes + 1 } : null);
+      // Update local state
       setUpvoted(true);
       
       // Store in localStorage to prevent multiple upvotes
@@ -188,20 +142,18 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         localStorage.setItem('upvotedStories', JSON.stringify([...upvotedList, story.id]));
       }
       
-      // In development or when connected to internet, try the API
-      if (typeof window !== 'undefined') {
-        try {
-          await fetch('/.netlify/functions/upvote-story', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ storyId: story.id })
-          });
-        } catch (error) {
-          console.error('Error calling API:', error);
-          // We already updated the UI, so no need to show an error
-        }
+      // Call API
+      try {
+        await fetch('/api/upvote-story', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ storyId: story.id })
+        });
+      } catch (error) {
+        console.error('Error calling API:', error);
+        // We already updated the UI, so no need to show an error
       }
     } catch (err) {
       console.error('Error upvoting:', err);

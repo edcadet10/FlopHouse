@@ -11,10 +11,10 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Specific route for story pages
+# Handle dynamic story routes
 [[redirects]]
   from = "/story/*"
-  to = "/story/[id].html"
+  to = "/story/[id]/index.html"
   status = 200
 
 # Ensure Netlify CMS admin interface is properly served

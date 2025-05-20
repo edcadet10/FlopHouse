@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>FlopHouse - Page Not Found</title>
+  <script>
+    // Single Page Apps for GitHub Pages / Netlify
+    // MIT License: https://github.com/rafgraph/spa-github-pages
+    // This script takes the current URL, extracts the path, and stores it
+    // so that the static site can render the proper page
+    (function() {
+      var pathSegmentsToKeep = 0;
+
+      var l = window.location;
+      var currentPath = l.pathname
+        .split('/')
+        .slice(0, 1 + pathSegmentsToKeep)
+        .join('/') + '/';
+      
+      // Store current URL for SPA routing
+      sessionStorage.setItem('redirectPath', currentPath);
+      
+      // Handle story URLs specifically
+      if (l.pathname.startsWith('/story/')) {
+        var storySlug = l.pathname.split('/story/')[1];
+        if (storySlug) {
+          sessionStorage.setItem('storySlug', storySlug);
+          l.replace(l.origin + '/story/[id]');
+          return;
+        }
+      }
+      
+      // Default redirection to home
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        currentPath + '?p=' + encodeURIComponent(l.pathname.slice(1)) +
+        (l.search ? '&q=' + encodeURIComponent(l.search.slice(1)) : '') +
+        l.hash
+      );
+    }());
+  </script>
+</head>
+<body>
+  <!-- This page is only shown if JavaScript is disabled -->
+  <h1>Page Not Found</h1>
+  <p>The page you're looking for doesn't exist or has been moved.</p>
+  <p><a href="/">Go back to the homepage</a></p>
+</body>
+</html>
