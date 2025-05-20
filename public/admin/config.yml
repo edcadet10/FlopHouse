@@ -21,17 +21,13 @@ publish_mode: editorial_workflow
 # Collections define the content structure
 collections:
   - name: "stories"
-    label: "Failure Stories"
+    label: "Published Stories"
     folder: "content/stories"
     create: true
     slug: "{{slug}}"
     preview_path: "stories/{{slug}}"
     editor:
       preview: true
-    # Filter stories by draft status
-    filter:
-      field: published
-      value: true
     fields:
       - {label: "ID", name: "id", widget: "string", required: true}
       - {label: "Title", name: "title", widget: "string", required: true}
@@ -40,7 +36,7 @@ collections:
       - {label: "Funding Amount", name: "fundingAmount", widget: "string", required: false}
       - {label: "Failure Reason", name: "failureReason", widget: "select", options: ["product-market-fit", "funding", "team", "competition", "business-model", "timing", "technology", "other"], required: true}
       - {label: "Submission Date", name: "date", widget: "datetime", required: true}
-      - {label: "Published", name: "published", widget: "boolean", default: false}
+      - {label: "Published", name: "published", widget: "boolean", default: true}
       - {label: "Email", name: "email", widget: "string", required: false}
       - {label: "Slug", name: "slug", widget: "string", required: true}
       - {label: "Story", name: "body", widget: "markdown", required: true}
@@ -53,6 +49,7 @@ collections:
     slug: "{{slug}}"
     editor:
       preview: true
+    publish: false  # Prevent direct publishing
     fields:
       - {label: "ID", name: "id", widget: "string", required: true}
       - {label: "Title", name: "title", widget: "string", required: true}
@@ -66,3 +63,12 @@ collections:
       - {label: "Slug", name: "slug", widget: "string", required: true}
       - {label: "Story", name: "body", widget: "markdown", required: true}
       - {label: "Lessons Learned", name: "lessons", widget: "markdown", required: false}
+      - label: "Approval Action"
+        name: "approve"
+        widget: "select"
+        options:
+          - { label: "Pending Review", value: "pending" }
+          - { label: "Approve & Publish", value: "approve" }
+          - { label: "Reject", value: "reject" }
+        default: "pending"
+        hint: "Select 'Approve & Publish' to move this submission to the published stories"
