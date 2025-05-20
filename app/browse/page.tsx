@@ -39,24 +39,36 @@ export default function BrowsePage() {
       try {
         setLoading(true)
         
-        // Build query parameters
-        const queryParams = new URLSearchParams();
-        if (industryFilter !== "all") queryParams.append("industry", industryFilter);
-        if (reasonFilter !== "all") queryParams.append("failureReason", reasonFilter);
+        // In static export mode, we'll always use mock data
+        // But we'll still attempt to fetch from API when in a browser environment
+        setStories(mockFailures)
         
-        // Add pagination
-        queryParams.append("page", "1");
-        queryParams.append("limit", "20");
-        
-        const url = `/.netlify/functions/get-stories${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-        const response = await fetch(url)
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`)
+        if (typeof window !== 'undefined') {
+          try {
+            // Build query parameters
+            const queryParams = new URLSearchParams();
+            if (industryFilter !== "all") queryParams.append("industry", industryFilter);
+            if (reasonFilter !== "all") queryParams.append("failureReason", reasonFilter);
+            
+            // Add pagination
+            queryParams.append("page", "1");
+            queryParams.append("limit", "20");
+            
+            const url = `/.netlify/functions/get-stories${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+            const response = await fetch(url)
+            
+            if (response.ok) {
+              const data = await response.json()
+              if (data.stories && data.stories.length > 0) {
+                setStories(data.stories)
+              }
+            }
+          } catch (fetchError) {
+            console.error("Failed to fetch from API:", fetchError)
+            // Already using mock data, so no need to handle this error
+          }
         }
         
-        const data = await response.json()
-        setStories(data.stories || [])
         setError(null)
       } catch (err) {
         console.error("Failed to fetch stories:", err)

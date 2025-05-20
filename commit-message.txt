@@ -1,0 +1,8 @@
+# React Hook Form and Zod setup hooks
+
+This commit fixes dependency installation issues with:
+- react-hook-form
+- @hookform/resolvers
+- zod
+
+These packages are required for form validation and submission handling.

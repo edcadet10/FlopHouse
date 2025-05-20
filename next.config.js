@@ -4,6 +4,8 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
+  // Enable trailing slashes for static export compatibility
+  trailingSlash: true,
   // This ensures Next.js generates static HTML files
   output: 'export'
 }

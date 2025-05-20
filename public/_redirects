@@ -1,0 +1,6 @@
+# Redirect all routes to index.html for client-side routing
+/*    /index.html   200
+
+# Preserve query parameters
+/browse/*    /browse/index.html   200
+/story/*    /story/index.html   200
