@@ -62,7 +62,7 @@ interface SelectProps {
 
 // Checkbox component props
 interface CheckboxProps {
-  label: string;
+  label: React.ReactNode;
   name: keyof FormState;
   checked: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
