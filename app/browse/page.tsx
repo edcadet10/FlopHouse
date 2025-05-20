@@ -39,89 +39,38 @@ export default function BrowsePage() {
       try {
         setLoading(true)
         
-        // In static export mode, we'll always use mock data
-        // But we'll still attempt to fetch from API when in a browser environment
-        setStories(mockFailures)
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        if (industryFilter !== "all") queryParams.append("industry", industryFilter);
+        if (reasonFilter !== "all") queryParams.append("failureReason", reasonFilter);
         
-        if (typeof window !== 'undefined') {
-          try {
-            // Build query parameters
-            const queryParams = new URLSearchParams();
-            if (industryFilter !== "all") queryParams.append("industry", industryFilter);
-            if (reasonFilter !== "all") queryParams.append("failureReason", reasonFilter);
-            
-            // Add pagination
-            queryParams.append("page", "1");
-            queryParams.append("limit", "20");
-            
-            const url = `/.netlify/functions/get-stories${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-            const response = await fetch(url)
-            
-            if (response.ok) {
-              const data = await response.json()
-              if (data.stories && data.stories.length > 0) {
-                setStories(data.stories)
-              }
-            }
-          } catch (fetchError) {
-            console.error("Failed to fetch from API:", fetchError)
-            // Already using mock data, so no need to handle this error
-          }
+        // Add pagination
+        queryParams.append("page", "1");
+        queryParams.append("limit", "20");
+        
+        const url = `/.netlify/functions/get-stories${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
         }
         
-        setError(null)
+        const data = await response.json();
+        setStories(data.stories || []);
+        setError(null);
       } catch (err) {
-        console.error("Failed to fetch stories:", err)
-        setError("Failed to load stories. Please try again later.")
-        // Fall back to mock data in case of error
-        setStories(mockFailures)
+        console.error("Failed to fetch stories:", err);
+        setError("Failed to load stories. Please try again later.");
+        setStories([]); // Empty array instead of mock data
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
     
     fetchStories()
   }, [industryFilter, reasonFilter])
 
-  // Mock data as fallback
-  const mockFailures: Story[] = [
-    {
-      id: 1,
-      title: "TaskMaster: What Went Wrong",
-      companyName: "TaskMaster Inc.",
-      industry: "SaaS",
-      fundingAmount: "$1.2M",
-      failureReason: "Lack of Product-Market Fit",
-      summary: "A deep dive into how we misunderstood the market need and built features nobody wanted.",
-      date: "3 days ago",
-      readTime: "5 min read",
-      upvotes: 24
-    },
-    {
-      id: 2,
-      title: "CodeBuddy: Our Journey to Shutdown",
-      companyName: "CodeBuddy",
-      industry: "Developer Tools",
-      fundingAmount: "$800K",
-      failureReason: "Business Model",
-      summary: "We built a great product that developers loved, but our business model couldn't sustain growth.",
-      date: "1 week ago",
-      readTime: "7 min read",
-      upvotes: 56
-    },
-    {
-      id: 3,
-      title: "LaunchNow: The No-Code Platform That Failed",
-      companyName: "LaunchNow",
-      industry: "No-Code",
-      fundingAmount: "$3.5M",
-      failureReason: "Competition",
-      summary: "Our no-code platform gained early traction but failed to convert free users to paying customers.",
-      date: "2 weeks ago",
-      readTime: "6 min read",
-      upvotes: 38
-    }
-  ]
+  // No mock data - we'll use real data from the API
 
   // Industry filter options
   const industries = [

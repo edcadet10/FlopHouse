@@ -5,65 +5,8 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle } from "lucide-react"
 
-// Mock data for static export
-const mockStories = [
-  {
-    id: "1",
-    title: "TaskMaster: What Went Wrong",
-    companyName: "TaskMaster Inc.",
-    industry: "SaaS",
-    fundingAmount: "$1.2M",
-    failureReason: "Lack of Product-Market Fit",
-    content: "A deep dive into how we misunderstood the market need and built features nobody wanted.\n\n## The Beginning\n\nWe started TaskMaster with a simple mission: help teams manage tasks better. We raised a $1.2M seed round and assembled a team of 6 engineers.\n\n## Where We Went Wrong\n\nWe built features we thought users would want, without validating our assumptions. We spent 8 months building an AI-powered task prioritization system, only to find out most users just wanted simple kanban boards.\n\n## Lessons Learned\n\n1. Talk to users before building features\n2. Launch with a minimal viable product\n3. Focus on solving one problem really well",
-    contentHtml: "<p>A deep dive into how we misunderstood the market need and built features nobody wanted.</p>\n<h2>The Beginning</h2>\n<p>We started TaskMaster with a simple mission: help teams manage tasks better. We raised a $1.2M seed round and assembled a team of 6 engineers.</p>\n<h2>Where We Went Wrong</h2>\n<p>We built features we thought users would want, without validating our assumptions. We spent 8 months building an AI-powered task prioritization system, only to find out most users just wanted simple kanban boards.</p>\n<h2>Lessons Learned</h2>\n<ol>\n<li>Talk to users before building features</li>\n<li>Launch with a minimal viable product</li>\n<li>Focus on solving one problem really well</li>\n</ol>",
-    date: "3 days ago",
-    readTime: "5 min read",
-    upvotes: 24,
-    slug: "taskmaster-what-went-wrong"
-  },
-  {
-    id: "2",
-    title: "CodeBuddy: Our Journey to Shutdown",
-    companyName: "CodeBuddy",
-    industry: "Developer Tools",
-    fundingAmount: "$800K",
-    failureReason: "Business Model",
-    content: "We built a great product that developers loved, but our business model couldn't sustain growth.\n\n## The Product\n\nCodeBuddy was an AI-powered code review tool that integrated with GitHub and provided real-time feedback on code quality, security vulnerabilities, and performance issues.\n\n## The Problem\n\nDevelopers loved our free tier, but we struggled to convert them to paying customers. Our pricing model didn't align with the value we provided.\n\n## Lessons Learned\n\n1. Validate willingness to pay early on\n2. Build a business model that aligns with user value\n3. Focus on enterprise sales earlier",
-    contentHtml: "<p>We built a great product that developers loved, but our business model couldn't sustain growth.</p>\n<h2>The Product</h2>\n<p>CodeBuddy was an AI-powered code review tool that integrated with GitHub and provided real-time feedback on code quality, security vulnerabilities, and performance issues.</p>\n<h2>The Problem</h2>\n<p>Developers loved our free tier, but we struggled to convert them to paying customers. Our pricing model didn't align with the value we provided.</p>\n<h2>Lessons Learned</h2>\n<ol>\n<li>Validate willingness to pay early on</li>\n<li>Build a business model that aligns with user value</li>\n<li>Focus on enterprise sales earlier</li>\n</ol>",
-    date: "1 week ago",
-    readTime: "7 min read",
-    upvotes: 56,
-    slug: "codebuddy-our-journey-to-shutdown"
-  },
-  {
-    id: "3",
-    title: "LaunchNow: Lessons from Our Failure",
-    companyName: "LaunchNow",
-    industry: "No-Code",
-    fundingAmount: "$500K",
-    failureReason: "Market Timing",
-    content: "Our no-code platform gained early traction but failed to convert free users to paying customers.\n\n## The Vision\n\nLaunchNow was a no-code platform designed to help non-technical founders build MVPs without writing a single line of code.\n\n## What Happened\n\nWe entered a crowded market too late, competing with established players like Bubble and Webflow. Our differentiators weren't strong enough to convince users to switch.\n\n## Key Takeaways\n\n1. Market timing is crucial - being first mover or having a strong differentiation\n2. Free users don't always convert, even if they love your product\n3. Listen to the market before building complex features",
-    contentHtml: "<p>Our no-code platform gained early traction but failed to convert free users to paying customers.</p>\n<h2>The Vision</h2>\n<p>LaunchNow was a no-code platform designed to help non-technical founders build MVPs without writing a single line of code.</p>\n<h2>What Happened</h2>\n<p>We entered a crowded market too late, competing with established players like Bubble and Webflow. Our differentiators weren't strong enough to convince users to switch.</p>\n<h2>Key Takeaways</h2>\n<ol>\n<li>Market timing is crucial - being first mover or having a strong differentiation</li>\n<li>Free users don't always convert, even if they love your product</li>\n<li>Listen to the market before building complex features</li>\n</ol>",
-    date: "2 weeks ago",
-    readTime: "6 min read",
-    upvotes: 32,
-    slug: "launchnow-lessons"
-  },
-  {
-    id: "placeholder",
-    title: "Startup Post-Mortem",
-    companyName: "Example Company",
-    industry: "Tech",
-    fundingAmount: "$1M",
-    failureReason: "Various Factors",
-    content: "This is a placeholder for startup post-mortems.",
-    contentHtml: "<p>This is a placeholder for startup post-mortems.</p>",
-    date: "Recently",
-    readTime: "5 min read",
-    upvotes: 10,
-    slug: "placeholder"
-  }
-];
+// Story client component
+// No mock data - we'll use real data from the API
 
 export default function StoryClient({ params }: { params: { id: string } }) {
   const [story, setStory] = useState<any | null>(null)
@@ -75,41 +18,21 @@ export default function StoryClient({ params }: { params: { id: string } }) {
   useEffect(() => {
     const loadStory = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         
-        // First try to find in mock data (for static generation and offline usage)
-        const mockStory = mockStories.find(s => s.id === params.id || s.slug === params.id);
+        // Always try to fetch from API
+        const response = await fetch(`/.netlify/functions/get-story/${params.id}`);
         
-        if (mockStory) {
-          setStory(mockStory);
-          setError(null);
-          return;
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error("Story not found");
+          }
+          throw new Error(`Error: ${response.status}`);
         }
         
-        // In a production environment with static export, you would fetch data from a JSON file
-        // or an external API instead of using serverless functions
-        try {
-          // Only try to fetch from API when in a browser environment (not during static generation)
-          if (typeof window !== 'undefined') {
-            const response = await fetch(`/.netlify/functions/get-story/${params.id}`);
-            
-            if (!response.ok) {
-              if (response.status === 404) {
-                throw new Error("Story not found");
-              }
-              throw new Error(`Error: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            setStory(data);
-          }
-        } catch (fetchError) {
-          console.error("Failed to fetch from API:", fetchError);
-          // If not found in API and we're here, show the error
-          if (!mockStory) {
-            throw new Error("Story not found or error fetching data");
-          }
-        }
+        const data = await response.json();
+        setStory(data);
+        setError(null);
       } catch (err: any) {
         console.error("Failed to load story:", err);
         setError(err.message || "Failed to load story. Please try again later.");

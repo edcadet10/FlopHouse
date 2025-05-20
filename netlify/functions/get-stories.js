@@ -2,6 +2,13 @@
 const { Octokit } = require("@octokit/rest");
 const matter = require("gray-matter");
 
+// Add proper error logging
+const logError = (err, context = '') => {
+  console.error(`[${context}] ${err.message}`);
+  console.error(err.stack);
+  // In a production setup, you could send this to a logging service
+};
+
 exports.handler = async (event, context) => {
   try {
     // Get query parameters
@@ -11,15 +18,19 @@ exports.handler = async (event, context) => {
     const industry = queryParams.industry || null;
     const failureReason = queryParams.failureReason || null;
     
-    // Try to fetch stories from GitHub if token is available
-    let stories = [];
-    
-    if (process.env.GITHUB_TOKEN) {
-      stories = await fetchStoriesFromGitHub();
-    } else {
-      // Fallback to mock data if no GitHub token
-      stories = getMockStories();
+    // Require GitHub token
+    if (!process.env.GITHUB_TOKEN) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ 
+          error: "GitHub token is not configured",
+          message: "Please contact the administrator to set up the GitHub token."
+        })
+      };
     }
+    
+    // Always fetch from GitHub
+    let stories = await fetchStoriesFromGitHub();
     
     // Apply filters if needed
     if (industry) {
@@ -58,7 +69,7 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (err) {
-    console.error("Error fetching stories:", err);
+    logError(err, 'get-stories');
     
     return {
       statusCode: 500,
@@ -140,8 +151,13 @@ async function fetchStoriesFromGitHub() {
     return stories.filter(story => story !== null);
   } catch (err) {
     console.error("Error fetching stories from GitHub:", err);
-    // Fallback to mock data
-    return getMockStories();
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ 
+        error: "Failed to fetch stories from GitHub",
+        message: err.message
+      })
+    };
   }
 }
 
@@ -173,47 +189,4 @@ function formatDate(dateString) {
   }
 }
 
-// Function to get mock stories
-function getMockStories() {
-  return [
-    {
-      id: 1,
-      title: "TaskMaster: What Went Wrong",
-      companyName: "TaskMaster Inc.",
-      industry: "SaaS",
-      fundingAmount: "$1.2M",
-      failureReason: "Lack of Product-Market Fit",
-      summary: "A deep dive into how we misunderstood the market need and built features nobody wanted.",
-      date: "3 days ago",
-      readTime: "5 min read",
-      upvotes: 24,
-      slug: "taskmaster-what-went-wrong"
-    },
-    {
-      id: 2,
-      title: "CodeBuddy: Our Journey to Shutdown",
-      companyName: "CodeBuddy",
-      industry: "Developer Tools",
-      fundingAmount: "$800K",
-      failureReason: "Business Model",
-      summary: "We built a great product that developers loved, but our business model couldn't sustain growth.",
-      date: "1 week ago",
-      readTime: "7 min read",
-      upvotes: 56,
-      slug: "codebuddy-our-journey-to-shutdown"
-    },
-    {
-      id: 3,
-      title: "LaunchNow: The No-Code Platform That Failed",
-      companyName: "LaunchNow",
-      industry: "No-Code",
-      fundingAmount: "$3.5M",
-      failureReason: "Competition",
-      summary: "Our no-code platform gained early traction but failed to convert free users to paying customers.",
-      date: "2 weeks ago",
-      readTime: "6 min read",
-      upvotes: 38,
-      slug: "launchnow-the-no-code-platform-that-failed"
-    }
-  ];
-}
+// Remove getMockStories function as we'll only use real data

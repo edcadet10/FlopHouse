@@ -2,6 +2,13 @@
 const { Octokit } = require("@octokit/rest");
 const matter = require("gray-matter");
 
+// Add proper error logging
+const logError = (err, context = '') => {
+  console.error(`[${context}] ${err.message}`);
+  console.error(err.stack);
+  // In a production setup, you could send this to a logging service
+};
+
 exports.handler = async (event, context) => {
   // Only allow POST requests
   if (event.httpMethod !== "POST") {
@@ -20,10 +27,19 @@ exports.handler = async (event, context) => {
       };
     }
     
-    // Handle upvote
-    if (process.env.GITHUB_TOKEN) {
-      await upvoteStoryInGitHub(data.storyId);
+    // Require GitHub token
+    if (!process.env.GITHUB_TOKEN) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ 
+          error: "GitHub token is not configured",
+          message: "Please contact the administrator to set up the GitHub token."
+        })
+      };
     }
+    
+    // Handle upvote in GitHub
+    await upvoteStoryInGitHub(data.storyId);
     
     return {
       statusCode: 200,
@@ -33,7 +49,7 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (err) {
-    console.error("Error processing upvote:", err);
+    logError(err, 'upvote-story');
     
     return {
       statusCode: 500,

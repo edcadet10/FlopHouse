@@ -2,6 +2,13 @@
 const { Octokit } = require("@octokit/rest");
 const slugify = require("slugify");
 
+// Add proper error logging
+const logError = (err, context = '') => {
+  console.error(`[${context}] ${err.message}`);
+  console.error(err.stack);
+  // In a production setup, you could send this to a logging service
+};
+
 exports.handler = async (event, context) => {
   // Only allow POST requests
   if (event.httpMethod !== "POST") {
@@ -44,11 +51,19 @@ exports.handler = async (event, context) => {
     // Format content as markdown with frontmatter
     const content = formatAsMarkdown(data, id, timestamp);
     
-    // If this is a production environment and GITHUB_TOKEN is set,
-    // actually create the file in GitHub
-    if (process.env.GITHUB_TOKEN) {
-      await createFileInGitHub(filename, content);
+    // Require GitHub token
+    if (!process.env.GITHUB_TOKEN) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ 
+          error: "GitHub token is not configured",
+          message: "Please contact the administrator to set up the GitHub token."
+        })
+      };
     }
+    
+    // Create the file in GitHub
+    await createFileInGitHub(filename, content);
     
     return {
       statusCode: 200,
@@ -60,7 +75,7 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (err) {
-    console.error("Error processing submission:", err);
+    logError(err, 'story-submission');
     
     return {
       statusCode: 500,
