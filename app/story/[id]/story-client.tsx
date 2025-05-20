@@ -20,8 +20,11 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       try {
         setLoading(true);
         
+        // Get the slug from params.id
+        const slug = params.id;
+        
         // Always try to fetch from API
-        const response = await fetch(`/.netlify/functions/get-story/${params.id}`);
+        const response = await fetch(`/.netlify/functions/get-story/${slug}`);
         
         if (!response.ok) {
           if (response.status === 404) {

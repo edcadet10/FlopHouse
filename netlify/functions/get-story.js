@@ -74,10 +74,12 @@ async function fetchStoryFromGitHub(storyId) {
   // Repository details from environment variables
   const owner = process.env.GITHUB_OWNER || 'edcadet10';
   const repo = process.env.GITHUB_REPO || 'FlopHouse';
-  const branch = process.env.GITHUB_BRANCH || 'main';  // Changed from 'content' to 'main'
+  const branch = process.env.GITHUB_BRANCH || 'main';
   const path = 'content/stories';
   
   try {
+    console.log(`Searching for story with ID/slug: ${storyId}`);
+    
     // Get the content of the stories directory
     const { data: files } = await octokit.repos.getContent({
       owner,
@@ -86,16 +88,31 @@ async function fetchStoryFromGitHub(storyId) {
       ref: branch
     });
     
-    // Find the file with the matching ID or slug
-    const file = files.find(file => 
-      file.name.includes(storyId) || 
-      file.name.startsWith(`${storyId}.`) || 
-      file.name.endsWith(`-${storyId}.md`)
+    // Filter markdown files
+    const mdFiles = files.filter(file => file.name.endsWith('.md') && file.name !== 'README.md');
+    console.log(`Found ${mdFiles.length} markdown files in stories directory`);
+    
+    // Try direct match first (exact filename)
+    let file = mdFiles.find(file => 
+      file.name === `${storyId}.md` || 
+      file.name === storyId
     );
     
+    // If no direct match, try partial matches
     if (!file) {
+      file = mdFiles.find(file => 
+        file.name.includes(storyId) || 
+        file.name.startsWith(`${storyId}-`) || 
+        file.name.endsWith(`-${storyId}.md`)
+      );
+    }
+    
+    if (!file) {
+      console.log(`No file found for story ID/slug: ${storyId}`);
       return null;
     }
+    
+    console.log(`Found file ${file.path} for story ID/slug: ${storyId}`);
     
     // Get the content of the file
     const fileData = await octokit.repos.getContent({
@@ -113,6 +130,7 @@ async function fetchStoryFromGitHub(storyId) {
     
     // Only return published stories
     if (frontmatter.published === false) {
+      console.log(`Story ${storyId} is not published`);
       return null;
     }
     
@@ -123,20 +141,22 @@ async function fetchStoryFromGitHub(storyId) {
     const readTime = calculateReadTime(storyContent);
     const date = formatDate(frontmatter.date);
     
+    console.log(`Successfully formatted story ${storyId}`);
+    
     // Return formatted story data
     return {
       id: frontmatter.id || file.name.replace('.md', ''),
-      title: frontmatter.title,
-      companyName: frontmatter.companyName,
-      industry: frontmatter.industry,
-      fundingAmount: frontmatter.fundingAmount,
-      failureReason: frontmatter.failureReason,
+      title: frontmatter.title || "Untitled Story",
+      companyName: frontmatter.companyName || "Unknown Company",
+      industry: frontmatter.industry || "Technology",
+      fundingAmount: frontmatter.fundingAmount || "Not specified",
+      failureReason: frontmatter.failureReason || "Multiple Factors",
       content: storyContent,
       contentHtml,
       date,
       readTime,
       upvotes: frontmatter.upvotes || 0,
-      slug: file.name.replace('.md', '')
+      slug: frontmatter.slug || file.name.replace('.md', '')
     };
   } catch (err) {
     console.error("Error fetching story from GitHub:", err);
