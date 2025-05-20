@@ -23,9 +23,9 @@ exports.handler = async (event, context) => {
     
     // Check GitHub token
     if (!process.env.GITHUB_TOKEN) {
-      console.warn("GitHub token not configured, using fallback data");
-      // Use fallback data instead of failing
-      let stories = getFallbackStories();
+      console.warn("GitHub token not configured, using empty data");
+      // Use empty data instead of failing
+      let stories = getEmptyStories();
       
       // Apply filters and return data
       return formatResponse(stories, industry, failureReason, page, limit);
@@ -40,8 +40,8 @@ exports.handler = async (event, context) => {
     logError(err, 'get-stories');
     
     // Return fallback data on error
-    console.log("Critical error in handler, using fallback data");
-    let stories = getFallbackStories();
+    console.log("Critical error in handler, using empty data");
+    let stories = getEmptyStories();
     
     return {
       statusCode: 200, // Return 200 with fallback data instead of 500
@@ -201,59 +201,19 @@ async function fetchStoriesFromGitHub() {
     } catch (repoError) {
       console.error("Error accessing stories directory:", repoError);
       
-      // If directory doesn't exist or other GitHub error, return fallback data
-      return getFallbackStories();
+      // If directory doesn't exist or other GitHub error, return empty data
+      return getEmptyStories();
     }
   } catch (err) {
     console.error("Critical error in fetchStoriesFromGitHub:", err);
-    return getFallbackStories();
+    return getEmptyStories();
   }
 }
 
-// Fallback function to return demo stories if GitHub fetching fails
-function getFallbackStories() {
-  console.log("Using fallback stories due to GitHub API error");
-  return [
-    {
-      id: "fallback1",
-      title: "TaskMaster: What Went Wrong",
-      companyName: "TaskMaster Inc.",
-      industry: "SaaS",
-      fundingAmount: "$1.2M",
-      failureReason: "Lack of Product-Market Fit",
-      summary: "A deep dive into how we misunderstood the market need and built features nobody wanted.",
-      date: "3 days ago",
-      readTime: "5 min read",
-      upvotes: 24,
-      slug: "taskmaster-what-went-wrong"
-    },
-    {
-      id: "fallback2",
-      title: "CodeBuddy: Our Journey to Shutdown",
-      companyName: "CodeBuddy",
-      industry: "Developer Tools",
-      fundingAmount: "$800K",
-      failureReason: "Business Model",
-      summary: "We built a great product that developers loved, but our business model couldn't sustain growth.",
-      date: "1 week ago",
-      readTime: "7 min read",
-      upvotes: 56,
-      slug: "codebuddy-journey"
-    },
-    {
-      id: "fallback3",
-      title: "LaunchNow: Lessons from Our Failure",
-      companyName: "LaunchNow",
-      industry: "No-Code",
-      fundingAmount: "$3.5M",
-      failureReason: "Market Timing",
-      summary: "Our no-code platform gained early traction but failed to convert free users to paying customers.",
-      date: "2 weeks ago",
-      readTime: "6 min read",
-      upvotes: 32,
-      slug: "launchnow-lessons"
-    }
-  ];
+// Function to return empty data list
+function getEmptyStories() {
+  console.log("Returning empty stories list");
+  return [];
 }
 
 // Function to calculate estimated read time
