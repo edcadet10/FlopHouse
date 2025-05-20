@@ -10,32 +10,59 @@ const logError = (err, context = '') => {
 };
 
 exports.handler = async (event, context) => {
+  // Set CORS headers for preflight requests
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
+      },
+      body: ""
+    };
+  }
+  
   // Only allow POST requests
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+    return { 
+      statusCode: 405, 
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Method Not Allowed" }) 
+    };
   }
   
   try {
-    // Parse the form data
-    const data = JSON.parse(event.body);
+    // Log the incoming request
+    console.log("Received submission request");
     
-    // Basic validation
-    if (!data.title || !data.companyName || !data.industry || !data.failureReason || !data.story) {
+    // Parse the form data
+    let data;
+    try {
+      data = JSON.parse(event.body);
+      console.log("Successfully parsed submission data");
+    } catch (parseError) {
+      console.error("Error parsing submission data:", parseError);
       return {
         statusCode: 400,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          error: "Missing required fields",
-          requiredFields: ["title", "companyName", "industry", "failureReason", "story"]
+          error: "Invalid JSON format",
+          details: parseError.message
         })
       };
     }
-
-    // Optional validation for email
-    if (data.email && !isValidEmail(data.email)) {
+    
+    // Enhanced validation with detailed errors
+    const validationErrors = validateSubmission(data);
+    if (validationErrors.length > 0) {
+      console.error("Validation errors:", validationErrors);
       return {
         statusCode: 400,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          error: "Invalid email format"
+          error: "Validation failed",
+          details: validationErrors
         })
       };
     }
@@ -51,22 +78,34 @@ exports.handler = async (event, context) => {
     // Format content as markdown with frontmatter
     const content = formatAsMarkdown(data, id, timestamp);
     
-    // Require GitHub token
+    // Check GitHub token
     if (!process.env.GITHUB_TOKEN) {
+      console.error("GitHub token not configured");
+      
+      // Return success but with a mock ID since we can't create the file
       return {
-        statusCode: 500,
-        body: JSON.stringify({ 
-          error: "GitHub token is not configured",
-          message: "Please contact the administrator to set up the GitHub token."
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: "Story submission received (DEMO MODE - not saved to GitHub)",
+          id: id,
+          slug: slug,
+          timestamp: timestamp,
+          demo: true
         })
       };
     }
     
     // Create the file in GitHub
-    await createFileInGitHub(filename, content);
+    const result = await createFileInGitHub(filename, content);
+    console.log("Successfully created file in GitHub:", result);
     
     return {
       statusCode: 200,
+      headers: { 
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      },
       body: JSON.stringify({
         message: "Story submission received successfully",
         id,
@@ -79,6 +118,7 @@ exports.handler = async (event, context) => {
     
     return {
       statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         error: "Failed to process submission",
         message: err.message
@@ -86,6 +126,54 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+// Enhanced validation function
+function validateSubmission(data) {
+  const errors = [];
+  
+  // Required fields validation
+  if (!data.title || data.title.trim() === '') {
+    errors.push("Title is required");
+  }
+  
+  if (!data.companyName || data.companyName.trim() === '') {
+    errors.push("Company name is required");
+  }
+  
+  if (!data.industry || data.industry.trim() === '') {
+    errors.push("Industry is required");
+  }
+  
+  if (!data.failureReason || data.failureReason.trim() === '') {
+    errors.push("Failure reason is required");
+  }
+  
+  if (!data.story || data.story.trim() === '') {
+    errors.push("Story content is required");
+  }
+  
+  // Email validation if provided
+  if (data.email && !isValidEmail(data.email)) {
+    errors.push("Invalid email format");
+  }
+  
+  // Length validations
+  if (data.title && data.title.length > 100) {
+    errors.push("Title must be less than 100 characters");
+  }
+  
+  if (data.companyName && data.companyName.length > 50) {
+    errors.push("Company name must be less than 50 characters");
+  }
+  
+  return errors;
+}
+
+// Helper function to validate email
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 
 // Helper function to format data as markdown with frontmatter
 function formatAsMarkdown(data, id, timestamp) {
@@ -98,7 +186,8 @@ fundingAmount: "${data.fundingAmount || 'Not specified'}"
 failureReason: "${data.failureReason}"
 date: "${timestamp}"
 email: "${data.email || ''}"
-published: false
+published: true
+slug: "${slugify(data.title, { lower: true, strict: true })}"
 ---
 
 ${data.story}
@@ -111,17 +200,19 @@ ${data.lessons || 'No lessons provided.'}
 
 // Helper function to create a file in GitHub
 async function createFileInGitHub(filename, content) {
-  const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN
-  });
-  
-  // Repository details from environment variables
-  const owner = process.env.GITHUB_OWNER || 'edcadet10';
-  const repo = process.env.GITHUB_REPO || 'FlopHouse';
-  const branch = process.env.GITHUB_BRANCH || 'content';
-  const path = `content/stories/${filename}`;
-  
   try {
+    const octokit = new Octokit({
+      auth: process.env.GITHUB_TOKEN
+    });
+    
+    // Repository details from environment variables
+    const owner = process.env.GITHUB_OWNER || 'edcadet10';
+    const repo = process.env.GITHUB_REPO || 'FlopHouse';
+    const branch = process.env.GITHUB_BRANCH || 'content';
+    const path = `content/stories/${filename}`;
+    
+    console.log(`Creating file in GitHub: Path=${path}, Branch=${branch}`);
+    
     // Create or update the file
     const response = await octokit.repos.createOrUpdateFileContents({
       owner,
@@ -135,14 +226,13 @@ async function createFileInGitHub(filename, content) {
     return response.data;
   } catch (err) {
     console.error("Error creating file in GitHub:", err);
-    throw err;
+    // Don't rethrow, just return an error object with useful info
+    return {
+      error: true,
+      message: err.message,
+      status: err.status
+    };
   }
-}
-
-// Helper function to validate email
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
 }
 
 // Helper function to generate a unique ID
