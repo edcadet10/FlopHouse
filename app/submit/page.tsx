@@ -332,9 +332,7 @@ export default function SubmitPage() {
   };
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async () => {
     const isValid = validateStep(currentStep);
     if (!isValid) return;
     
@@ -481,12 +479,7 @@ export default function SubmitPage() {
         <ProgressSteps currentStep={currentStep} totalSteps={3} />
 
         {/* Submission Form - Applying Miller's Law with grouped sections */}
-        <form onSubmit={handleSubmit} className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-          <input type="hidden" name="form-name" value="story-submission" />
-          <div className="hidden">
-            <label>Don't fill this out if you're human: <input name="bot-field" /></label>
-          </div>
-          
+        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6">
           {/* Step 1: Basic Info */}
           {currentStep === 0 && (
             <div className="animate-in fade-in duration-300">
@@ -629,7 +622,8 @@ export default function SubmitPage() {
                 </Button>
               ) : (
                 <Button 
-                  type="submit"
+                  type="button"
+                  onClick={handleSubmit}
                   disabled={submitting}
                 >
                   {submitting ? (
@@ -647,7 +641,7 @@ export default function SubmitPage() {
               )}
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </main>
   );
