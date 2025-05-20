@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import Script from 'next/script';
+import Header from '@/components/layout/header';
+import Footer from '@/components/layout/footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,14 +24,18 @@ export default function RootLayout({
         {/* Netlify Identity Widget - needed for CMS admin authentication */}
         <Script src="https://identity.netlify.com/v1/netlify-identity-widget.js" strategy="beforeInteractive" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <Header />
+          <div className="flex-grow">
+            {children}
+          </div>
+          <Footer />
         </ThemeProvider>
         <Script id="netlify-identity-redirect">
           {`

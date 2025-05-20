@@ -17,6 +17,7 @@ interface FormState {
   lessons: string;
   email: string;
   marketingConsent: boolean;
+  privacyConsent: boolean;
 }
 
 // Error state interface
@@ -227,7 +228,8 @@ export default function SubmitPage() {
     story: '',
     lessons: '',
     email: '',
-    marketingConsent: false
+    marketingConsent: false,
+    privacyConsent: false
   });
   
   // Current step in the multi-step form
@@ -305,6 +307,10 @@ export default function SubmitPage() {
     if (step === 2) {
       if (formState.email && !validateEmail(formState.email)) {
         newErrors.email = "Please enter a valid email";
+      }
+      
+      if (!formState.privacyConsent) {
+        newErrors.privacyConsent = "You must agree to the privacy policy to continue";
       }
     }
     
@@ -587,6 +593,28 @@ export default function SubmitPage() {
                 onChange={handleChange}
                 error={errors.email}
               />
+              
+              <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-lg mb-6">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-5 w-5 text-cyan-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-zinc-300 text-sm">
+                    <strong className="text-white">Important:</strong> By submitting your story, you grant FlopHouse permission to publish it on our platform and to contact you via email regarding your submission. You retain ownership of your content, but grant us a license to use and display it.
+                  </p>
+                </div>
+              </div>
+              
+              <FormCheckbox 
+                label={
+                  <span>
+                    I agree to the <Link href="/privacy" className="text-cyan-500 hover:text-cyan-400 transition-colors">Privacy Policy</Link> and give consent for my data to be processed as described. <span className="text-red-500">*</span>
+                  </span>
+                }
+                name="privacyConsent"
+                checked={formState.privacyConsent}
+                onChange={handleChange}
+                error={errors.privacyConsent}
+              />
+              
               <FormCheckbox 
                 label="I agree to receive occasional updates about FlopHouse and startup insights."
                 name="marketingConsent"
