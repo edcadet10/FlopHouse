@@ -5,9 +5,16 @@
 [functions]
   directory = "netlify/functions"
   
+# Redirects API calls to Netlify Functions
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
+  status = 200
+
+# Specific route for story pages
+[[redirects]]
+  from = "/story/*"
+  to = "/story/[id].html"
   status = 200
 
 # Ensure Netlify CMS admin interface is properly served
@@ -17,8 +24,8 @@
   status = 200
   force = true
 
-# Handle dynamic routes for story pages
+# Handle any route with the SPA fallback
 [[redirects]]
-  from = "/story/*"
-  to = "/story/[id]/index.html"
+  from = "/*"
+  to = "/index.html"
   status = 200

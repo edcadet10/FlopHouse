@@ -46,11 +46,29 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       try {
         setLoading(true);
         
+        // Check if we have the story data in sessionStorage first
+        if (typeof window !== 'undefined') {
+          const storedStoryData = sessionStorage.getItem('currentStory');
+          if (storedStoryData) {
+            // Clear it to prevent stale data on refresh
+            sessionStorage.removeItem('currentStory');
+            
+            const parsedData = JSON.parse(storedStoryData);
+            setStory(parsedData);
+            setError(null);
+            setLoading(false);
+            return; // Exit early if we have the data
+          }
+        }
+        
         // Get the slug from params.id
         const slug = params.id;
         
-        // Always try to fetch from API
-        const response = await fetch(`/.netlify/functions/get-story/${slug}`);
+        // Log the slug for debugging
+        console.log("Fetching story with slug:", slug);
+        
+        // Always try to fetch from API - fix: use /api prefix which is redirected to /.netlify/functions
+        const response = await fetch(`/api/get-story/${slug}`);
         
         if (!response.ok) {
           if (response.status === 404) {

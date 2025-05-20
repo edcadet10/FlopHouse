@@ -13,7 +13,20 @@ const logError = (err, context = '') => {
 exports.handler = async (event, context) => {
   try {
     // Get story ID or slug from path parameter
-    const storyId = event.path.split("/").pop();
+    const pathSegments = event.path.split("/");
+    console.log("Path:", event.path);
+    console.log("Path segments:", pathSegments);
+    
+    // Take the last non-empty segment
+    let storyId = null;
+    for (let i = pathSegments.length - 1; i >= 0; i--) {
+      if (pathSegments[i] && pathSegments[i] !== "get-story") {
+        storyId = pathSegments[i];
+        break;
+      }
+    }
+    
+    console.log("Extracted storyId:", storyId);
     
     if (!storyId) {
       return {
