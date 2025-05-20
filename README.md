@@ -6,7 +6,7 @@
 
 **A curated sanctuary for failed startup stories.**
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/sample-id/deploy-status)](https://app.netlify.com/sites/flophouse/deploys)
+[![Netlify Status](https://img.shields.io/badge/Netlify-Deployed-00C7B7?logo=netlify&logoColor=white)](https://app.netlify.com/sites/flophouse/deploys)
 [![GitHub Issues](https://img.shields.io/github/issues/edcadet10/FlopHouse)](https://github.com/edcadet10/FlopHouse/issues)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![NextJS](https://img.shields.io/badge/NextJS-14.1.4-black)](https://nextjs.org/)
