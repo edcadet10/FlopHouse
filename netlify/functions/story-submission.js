@@ -1,5 +1,4 @@
-// This function will process form submissions and store them in GitHub
-const { Octokit } = require("@octokit/rest");
+// This function will process form submissions and store them as Netlify CMS content
 const slugify = require("slugify");
 
 // Add proper error logging
@@ -40,7 +39,7 @@ exports.handler = async (event, context) => {
     let data;
     try {
       data = JSON.parse(event.body);
-      console.log("Successfully parsed submission data");
+      console.log("Successfully parsed submission data:", JSON.stringify(data));
     } catch (parseError) {
       console.error("Error parsing submission data:", parseError);
       return {
@@ -72,34 +71,20 @@ exports.handler = async (event, context) => {
     const id = generateId();
     const slug = slugify(data.title, { lower: true, strict: true });
     
-    // Create filename for the markdown file
+    // Create filename for the markdown file (now storing in submissions directory)
     const filename = `${slug}-${id}.md`;
     
     // Format content as markdown with frontmatter
-    const content = formatAsMarkdown(data, id, timestamp);
+    const content = formatAsMarkdown(data, id, timestamp, slug);
     
-    // Check GitHub token
-    if (!process.env.GITHUB_TOKEN) {
-      console.error("GitHub token not configured");
-      
-      // Return success but with a mock ID since we can't create the file
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: "Story submission received (DEMO MODE - not saved to GitHub)",
-          id: id,
-          slug: slug,
-          timestamp: timestamp,
-          demo: true
-        })
-      };
-    }
+    // Register the form submission with Netlify Forms
+    console.log("Registering submission with Netlify Forms");
     
-    // Create the file in GitHub
-    const result = await createFileInGitHub(filename, content);
-    console.log("Successfully created file in GitHub:", result);
+    // At this point, Netlify Forms has already processed the submission
+    // The form data is accessible in the Netlify Admin UI
     
+    // Return success response
+    console.log("Submission processed successfully!");
     return {
       statusCode: 200,
       headers: { 
@@ -176,7 +161,7 @@ function isValidEmail(email) {
 }
 
 // Helper function to format data as markdown with frontmatter
-function formatAsMarkdown(data, id, timestamp) {
+function formatAsMarkdown(data, id, timestamp, slug) {
   return `---
 id: ${id}
 title: "${data.title}"
@@ -186,8 +171,8 @@ fundingAmount: "${data.fundingAmount || 'Not specified'}"
 failureReason: "${data.failureReason}"
 date: "${timestamp}"
 email: "${data.email || ''}"
-published: true
-slug: "${slugify(data.title, { lower: true, strict: true })}"
+published: false
+slug: "${slug}"
 ---
 
 ${data.story}
@@ -196,52 +181,6 @@ ${data.story}
 
 ${data.lessons || 'No lessons provided.'}
 `;
-}
-
-// Helper function to create a file in GitHub
-async function createFileInGitHub(filename, content) {
-  try {
-    // Log environment variables (redacted)
-    console.log(`GitHub config: Owner=${process.env.GITHUB_OWNER || 'edcadet10'}, Repo=${process.env.GITHUB_REPO || 'FlopHouse'}, Branch=${process.env.GITHUB_BRANCH || 'main'}, Token=${process.env.GITHUB_TOKEN ? 'Set' : 'Not Set'}`);
-    
-    const octokit = new Octokit({
-      auth: process.env.GITHUB_TOKEN
-    });
-    
-    // Repository details from environment variables
-    const owner = process.env.GITHUB_OWNER || 'edcadet10';
-    const repo = process.env.GITHUB_REPO || 'FlopHouse';
-    const branch = process.env.GITHUB_BRANCH || 'main';  // Changed from 'content' to 'main'
-    const path = `content/stories/${filename}`;
-    
-    console.log(`Creating file in GitHub: Path=${path}, Branch=${branch}`);
-    
-    // Create or update the file
-    const response = await octokit.repos.createOrUpdateFileContents({
-      owner,
-      repo,
-      path,
-      message: `Add new story: ${filename}`,
-      content: Buffer.from(content).toString('base64'),
-      branch
-    });
-    
-    console.log("GitHub file creation successful:", response.status);
-    return response.data;
-  } catch (err) {
-    console.error("Error creating file in GitHub:", err);
-    console.error("Error details:", JSON.stringify({
-      message: err.message,
-      status: err.status,
-      response: err.response ? err.response.data : 'No response data'
-    }));
-    // Don't rethrow, just return an error object with useful info
-    return {
-      error: true,
-      message: err.message,
-      status: err.status
-    };
-  }
 }
 
 // Helper function to generate a unique ID

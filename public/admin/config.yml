@@ -1,0 +1,68 @@
+backend:
+  name: git-gateway
+  branch: main
+  commit_messages:
+    create: 'Create {{collection}} "{{slug}}"'
+    update: 'Update {{collection}} "{{slug}}"'
+    delete: 'Delete {{collection}} "{{slug}}"'
+    uploadMedia: 'Upload "{{path}}"'
+    deleteMedia: 'Delete "{{path}}"'
+
+# When using Netlify CMS locally
+local_backend: true
+
+# Media and public folder configuration
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+# Enable editorial workflow for content review/approval
+publish_mode: editorial_workflow
+
+# Collections define the content structure
+collections:
+  - name: "stories"
+    label: "Failure Stories"
+    folder: "content/stories"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "stories/{{slug}}"
+    editor:
+      preview: true
+    # Filter stories by draft status
+    filter:
+      field: published
+      value: true
+    fields:
+      - {label: "ID", name: "id", widget: "string", required: true}
+      - {label: "Title", name: "title", widget: "string", required: true}
+      - {label: "Company Name", name: "companyName", widget: "string", required: true}
+      - {label: "Industry", name: "industry", widget: "select", options: ["saas", "ecommerce", "fintech", "healthtech", "edtech", "consumer", "marketplace", "hardware", "other"], required: true}
+      - {label: "Funding Amount", name: "fundingAmount", widget: "string", required: false}
+      - {label: "Failure Reason", name: "failureReason", widget: "select", options: ["product-market-fit", "funding", "team", "competition", "business-model", "timing", "technology", "other"], required: true}
+      - {label: "Submission Date", name: "date", widget: "datetime", required: true}
+      - {label: "Published", name: "published", widget: "boolean", default: false}
+      - {label: "Email", name: "email", widget: "string", required: false}
+      - {label: "Slug", name: "slug", widget: "string", required: true}
+      - {label: "Story", name: "body", widget: "markdown", required: true}
+      - {label: "Lessons Learned", name: "lessons", widget: "markdown", required: false}
+  
+  - name: "submissions"
+    label: "New Submissions"
+    folder: "content/submissions"
+    create: true
+    slug: "{{slug}}"
+    editor:
+      preview: true
+    fields:
+      - {label: "ID", name: "id", widget: "string", required: true}
+      - {label: "Title", name: "title", widget: "string", required: true}
+      - {label: "Company Name", name: "companyName", widget: "string", required: true}
+      - {label: "Industry", name: "industry", widget: "select", options: ["saas", "ecommerce", "fintech", "healthtech", "edtech", "consumer", "marketplace", "hardware", "other"], required: true}
+      - {label: "Funding Amount", name: "fundingAmount", widget: "string", required: false}
+      - {label: "Failure Reason", name: "failureReason", widget: "select", options: ["product-market-fit", "funding", "team", "competition", "business-model", "timing", "technology", "other"], required: true}
+      - {label: "Submission Date", name: "date", widget: "datetime", required: true}
+      - {label: "Published", name: "published", widget: "boolean", default: false}
+      - {label: "Email", name: "email", widget: "string", required: false}
+      - {label: "Slug", name: "slug", widget: "string", required: true}
+      - {label: "Story", name: "body", widget: "markdown", required: true}
+      - {label: "Lessons Learned", name: "lessons", widget: "markdown", required: false}
