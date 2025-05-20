@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Card } from "@/components/ui/card"
-import { Shield, Lock, Mail, Eye, FileText, AlertTriangle } from "lucide-react"
+import { Shield, Lock, Mail, Eye, FileText, AlertTriangle, Globe } from "lucide-react"
 
 export default function PrivacyPage() {
   return (
