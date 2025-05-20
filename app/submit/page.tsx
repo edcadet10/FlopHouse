@@ -114,22 +114,16 @@ export default function SubmitPage() {
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    console.log(`Input change - Field: ${name}, Value: ${value}`);
     const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
     
-    // Use a functional update to ensure we're always working with the latest state
-    setFormState(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? !!checked : value
-    }));
-    
-    // Clear any existing error for this field when the user changes it
-    if (errors[name]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
+    setFormState(prev => {
+      console.log('Previous state:', prev);
+      return {
+        ...prev,
+        [name]: type === 'checkbox' ? !!checked : value
+      };
+    });
   }
 
   // Basic validation function
