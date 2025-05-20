@@ -91,7 +91,7 @@ exports.handler = async (event, context) => {
     // Format content as markdown with frontmatter
     const content = formatAsMarkdown(data, id, timestamp, slug);
     
-    // Store the submission in GitHub through Git Gateway
+    // Store the submission in GitHub
     try {
       await saveSubmissionToGitHub(filename, content);
       console.log("Successfully saved submission to GitHub:", filename);
@@ -211,90 +211,12 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
 }
 
-// Function to save the submission to GitHub via Git Gateway
+// Function to save the submission to GitHub
 async function saveSubmissionToGitHub(filename, content) {
-  try {
-    // First try using Git Gateway
-    try {
-      await saveSubmissionWithGitGateway(filename, content);
-      return true;
-    } catch (gitGatewayError) {
-      console.log("Git Gateway failed, falling back to GitHub token:", gitGatewayError.message);
-      
-      // If Git Gateway fails, try direct GitHub API
-      await saveSubmissionWithGitHubToken(filename, content);
-      return true;
-    }
-  } catch (error) {
-    console.error("All GitHub submission methods failed:", error);
-    throw error;
-  }
-}
-
-// Method using Netlify's Git Gateway
-async function saveSubmissionWithGitGateway(filename, content) {
-  // Netlify's Git Gateway endpoint
-  const gatewayEndpoint = '/.netlify/git/github';
-  
-  try {
-    // Get access token from the current request context
-    // This requires Netlify Identity and Git Gateway to be configured
-    const tokenResponse = await fetch('/.netlify/identity/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: 'grant_type=client_credentials'
-    });
-    
-    if (!tokenResponse.ok) {
-      throw new Error(`Failed to get access token: ${tokenResponse.status} ${tokenResponse.statusText}`);
-    }
-    
-    const { access_token } = await tokenResponse.json();
-    
-    // Repository details from environment variables
-    const owner = process.env.GITHUB_OWNER || 'edcadet10';
-    const repo = process.env.GITHUB_REPO || 'FlopHouse';
-    const branch = process.env.GITHUB_BRANCH || 'main';
-    const path = `content/submissions/${filename}`;
-    
-    // Create a base64 encoded content for the file
-    const encodedContent = Base64.encode(content);
-    
-    // Use Git Gateway to create a new file in the submissions directory
-    const response = await fetch(`${gatewayEndpoint}/repos/${owner}/${repo}/contents/${path}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `New story submission: ${filename}`,
-        content: encodedContent,
-        branch
-      })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Failed to create file: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
-    }
-    
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error('Error in saveSubmissionWithGitGateway:', error);
-    throw error;
-  }
-}
-
-// Alternative approach using direct GitHub API if Git Gateway fails
-async function saveSubmissionWithGitHubToken(filename, content) {
   try {
     // Use GitHub token from environment variables
     if (!process.env.GITHUB_TOKEN) {
-      throw new Error('GitHub token not configured');
+      throw new Error('GitHub token not configured. Please set GITHUB_TOKEN environment variable in Netlify.');
     }
     
     // Repository details from environment variables
@@ -302,6 +224,8 @@ async function saveSubmissionWithGitHubToken(filename, content) {
     const repo = process.env.GITHUB_REPO || 'FlopHouse';
     const branch = process.env.GITHUB_BRANCH || 'main';
     const path = `content/submissions/${filename}`;
+    
+    console.log(`Attempting to save to: ${owner}/${repo}/${path} on branch ${branch}`);
     
     // Create a base64 encoded content
     const encodedContent = Base64.encode(content);
@@ -329,7 +253,7 @@ async function saveSubmissionWithGitHubToken(filename, content) {
     const responseData = await response.json();
     return responseData;
   } catch (error) {
-    console.error('Error in saveSubmissionWithGitHubToken:', error);
+    console.error('Error in saveSubmissionToGitHub:', error);
     throw error;
   }
 }
