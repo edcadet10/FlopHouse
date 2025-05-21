@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react"
 import { useStoryFetcher, Story } from "@/lib/story-fetcher"
 import IdentityModal from "@/components/auth/identity-modal"
+import NetlifyIdentityWidget from 'netlify-identity-widget'
 
 // Comment interface
 interface Comment {
