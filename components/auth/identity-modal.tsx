@@ -74,8 +74,8 @@ export default function IdentityModal({
         // Log debug information
         console.log('Opening Netlify Identity login modal');
         
-        // Use openModal instead of open for more control
-        NetlifyIdentityWidget.openModal('login');
+        // Use open method to display the login modal
+        NetlifyIdentityWidget.open('login');
       } catch (e) {
         console.error('Error opening login modal:', e);
         setError('Authentication service not available. Please try again later.');
