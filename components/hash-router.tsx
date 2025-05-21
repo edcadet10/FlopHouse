@@ -7,8 +7,29 @@ import StoryViewerClient from '@/app/story-viewer-client';
 export default function HashRouter() {
   const [currentRoute, setCurrentRoute] = useState<string | null>(null);
   const [storySlug, setStorySlug] = useState<string | null>(null);
+  const [hideMainContent, setHideMainContent] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    // Apply CSS to hide main content when hash route is active
+    if (hideMainContent) {
+      document.body.classList.add('hash-route-active');
+      // Add a style tag if it doesn't exist
+      if (!document.getElementById('hash-router-styles')) {
+        const style = document.createElement('style');
+        style.id = 'hash-router-styles';
+        style.innerHTML = `
+          body.hash-route-active > div > div > main {
+            display: none !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    } else {
+      document.body.classList.remove('hash-route-active');
+    }
+  }, [hideMainContent]);
 
   useEffect(() => {
     // Function to handle hash changes
@@ -20,8 +41,10 @@ export default function HashRouter() {
       if (hash.startsWith('#/story/')) {
         const slug = hash.replace('#/story/', '');
         setStorySlug(slug);
+        setHideMainContent(true);
       } else {
         setStorySlug(null);
+        setHideMainContent(false);
       }
     };
 

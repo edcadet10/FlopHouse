@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>FlopHouse - Redirecting</title>
   <script>
-    // Simple SPA redirector for GitHub Pages and Netlify
+    // Simple SPA redirector for Netlify
     (function() {
       // Extract the path from the URL
       var path = window.location.pathname;
@@ -12,6 +12,8 @@
       // If it's a story URL, redirect to the home page with a hash fragment
       if (path.startsWith('/story/')) {
         var slug = path.split('/story/')[1];
+        // Remove any trailing slashes or .html
+        slug = slug.replace(/\/$/, '').replace(/\.html$/, '');
         window.location.replace('/#/story/' + slug);
       } else {
         // For any other 404, redirect to the home page
@@ -19,6 +21,36 @@
       }
     })();
   </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    p {
+      margin-bottom: 20px;
+      color: #94a3b8;
+    }
+    a {
+      color: #06b6d4;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <h1>Redirecting...</h1>

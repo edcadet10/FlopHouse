@@ -6,6 +6,19 @@ import { useEffect, useState } from "react";
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react";
 import { Story } from "@/lib/story-fetcher";
 
+// CSS for full-height story page
+const pageStyles = {
+  position: 'fixed' as const,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 100,
+  overflow: 'auto',
+  backdropFilter: 'blur(10px)',
+  background: 'linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a)'
+};
+
 // Comment interface
 interface Comment {
   id: string;
@@ -222,68 +235,75 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
   // Loading state
   if (loading) {
     return (
-      <main className="min-h-screen">
-        <div className="container px-4 py-12 mx-auto max-w-4xl">
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+      <div style={pageStyles}>
+        <main className="min-h-screen">
+          <div className="container px-4 py-12 mx-auto max-w-4xl">
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
   
   // Error state
   if (error) {
     return (
-      <main className="min-h-screen">
-        <div className="container px-4 py-12 mx-auto max-w-4xl">
-          <div className="bg-muted/30 border border-red-500/20 rounded-lg p-12 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-medium text-white mb-2">Something went wrong</h2>
-            <p className="text-zinc-400 mb-6">{error}</p>
-            <Button asChild>
-              <a href="/#/browse">
-                Browse Other Stories
-              </a>
-            </Button>
+      <div style={pageStyles}>
+        <main className="min-h-screen">
+          <div className="container px-4 py-12 mx-auto max-w-4xl">
+            <div className="bg-muted/30 border border-red-500/20 rounded-lg p-12 text-center">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-medium text-white mb-2">Something went wrong</h2>
+              <p className="text-zinc-400 mb-6">{error}</p>
+              <Button asChild>
+                <a href="/#/browse">
+                  Browse Other Stories
+                </a>
+              </Button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
   
   // No story found
   if (!story) {
     return (
-      <main className="min-h-screen">
-        <div className="container px-4 py-12 mx-auto max-w-4xl">
-          <div className="bg-muted/30 border border-white/10 rounded-lg p-12 text-center">
-            <FileText className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-medium text-white mb-2">Story Not Found</h2>
-            <p className="text-zinc-400 mb-6">The story you're looking for doesn't exist or has been removed.</p>
-            <Button asChild>
-              <a href="/#/browse">
-                Browse Available Stories
-              </a>
-            </Button>
+      <div style={pageStyles}>
+        <main className="min-h-screen">
+          <div className="container px-4 py-12 mx-auto max-w-4xl">
+            <div className="bg-muted/30 border border-white/10 rounded-lg p-12 text-center">
+              <FileText className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-medium text-white mb-2">Story Not Found</h2>
+              <p className="text-zinc-400 mb-6">The story you're looking for doesn't exist or has been removed.</p>
+              <Button asChild>
+                <a href="/#/browse">
+                  Browse Available Stories
+                </a>
+              </Button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
   
   return (
-    <main className="min-h-screen">
-      <div className="container px-4 py-12 mx-auto max-w-4xl">
-        {/* Header with breadcrumb */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 text-sm text-zinc-500 mb-4">
-            <a href="/" className="hover:text-cyan-400 transition-colors">Home</a>
-            <span>/</span>
-            <a href="/#/browse" className="hover:text-cyan-400 transition-colors">Browse</a>
-            <span>/</span>
-            <span className="text-zinc-300">{story.title}</span>
-          </div>
+    <div style={pageStyles}>
+      <main className="min-h-screen pt-16"> {/* Added padding to avoid overlap with navbar */}
+        <div className="container px-4 py-12 mx-auto max-w-4xl">
+          {/* Header with breadcrumb */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 text-sm text-zinc-500 mb-4">
+              <a href="/" className="hover:text-cyan-400 transition-colors">Home</a>
+              <span>/</span>
+              <a href="/#/browse" className="hover:text-cyan-400 transition-colors">Browse</a>
+              <span>/</span>
+              <span className="text-zinc-300">{story.title}</span>
+            </div>
           
           <a href="/#/browse" className="inline-flex items-center text-sm text-zinc-400 hover:text-cyan-400 transition-colors mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
@@ -439,6 +459,6 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }
