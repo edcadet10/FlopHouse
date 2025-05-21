@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react"
-import { useStoryFetcher } from "@/lib/story-fetcher"
+import { useStoryFetcher, Story } from "@/lib/story-fetcher"
 
 // Comment interface
 interface Comment {
@@ -48,7 +48,9 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       const upvotedStories = localStorage.getItem('upvotedStories');
       if (upvotedStories) {
         const upvotedList = JSON.parse(upvotedStories);
-        setUpvoted(upvotedList.includes(story.id));
+        if (story.id) {
+          setUpvoted(upvotedList.includes(story.id));
+        }
       }
       
       // Load comments for this story
