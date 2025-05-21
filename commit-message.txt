@@ -1,9 +1,10 @@
-fix: update API paths to use direct Netlify Functions format
+fix: resolve 500 error with Netlify Identity integration
 
-- Change all API calls from /api/* to /.netlify/functions/* format
-- Fix the upvote feature by ensuring correct API endpoints
-- Update paths in story client components and fetcher
-- This resolves the 500 error when clicking the upvote button
+- Add robust JWT token decoding with proper padding handling
+- Properly use Netlify clientContext for identity info
+- Add extensive logging to diagnose function issues
+- Fix error handling for better debugging
+- Ensure smooth experience for both authenticated and anonymous users
+- Prevent duplicate upvotes more reliably
 
-Although there's a redirect rule in netlify.toml, using the direct
-path format ensures consistent behavior across all environments.
+This should fix the 500 Internal Server Error seen when upvoting stories.
