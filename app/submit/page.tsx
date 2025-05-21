@@ -149,7 +149,7 @@ const FormSelect = ({
       className={`w-full h-10 px-3 py-2 bg-white/5 border ${error ? 'border-red-500' : 'border-white/10'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white transition-all duration-300`}
     >
       {options.map((option) => (
-        <option key={option.value} value={option.value}>
+        <option key={option.value} value={option.value} className="bg-zinc-800 text-white">
           {option.label}
         </option>
       ))}
