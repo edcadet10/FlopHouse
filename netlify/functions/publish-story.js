@@ -1,6 +1,5 @@
 // This function handles publishing a submission to the stories collection
-const fetch = require("node-fetch");
-const { Base64 } = require("js-base64");
+const { Octokit } = require("@octokit/rest");
 
 exports.handler = async (event, context) => {
   // Set CORS headers for all responses
@@ -60,50 +59,64 @@ exports.handler = async (event, context) => {
     const sourcePath = `content/submissions/${slug}.md`;
     const destPath = `content/stories/${slug}.md`;
     
-    // Create base64 encoded content
-    const encodedContent = Base64.encode(content);
+    console.log(`Publishing story: ${slug}`);
+    console.log(`Source path: ${sourcePath}`);
+    console.log(`Destination path: ${destPath}`);
     
-    // 1. First, create the new file in the stories folder
-    const createResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${destPath}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${process.env.GITHUB_TOKEN}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'FlopHouse-Netlify-Function'
-      },
-      body: JSON.stringify({
+    // Initialize Octokit
+    const octokit = new Octokit({
+      auth: process.env.GITHUB_TOKEN
+    });
+    
+    // Step 1: First check if the source file exists and get its SHA
+    let sourceSha;
+    try {
+      const sourceContent = await octokit.repos.getContent({
+        owner,
+        repo,
+        path: sourcePath,
+        ref: branch
+      });
+      sourceSha = sourceContent.data.sha;
+      console.log(`Source file found with SHA: ${sourceSha}`);
+    } catch (error) {
+      console.warn(`Source file not found or cannot be read: ${error.message}`);
+      // Continue anyway, we'll just create the destination file
+    }
+    
+    // Step 2: Create the new file in the stories folder
+    try {
+      await octokit.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        path: destPath,
         message: `Publish story: ${slug}`,
-        content: encodedContent,
+        content: Buffer.from(content).toString('base64'),
         branch
-      })
-    });
-    
-    if (!createResponse.ok) {
-      const error = await createResponse.json();
-      throw new Error(`Failed to create published file: ${createResponse.status} - ${JSON.stringify(error)}`);
+      });
+      console.log(`Destination file created successfully: ${destPath}`);
+    } catch (error) {
+      console.error(`Failed to create destination file: ${error.message}`);
+      throw new Error(`Failed to create published file: ${error.message}`);
     }
     
-    // 2. Delete the original file from submissions (optional)
-    // You can uncomment this if you want to delete the submission after publishing
-    /*
-    const deleteResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${sourcePath}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `token ${process.env.GITHUB_TOKEN}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'FlopHouse-Netlify-Function'
-      },
-      body: JSON.stringify({
-        message: `Delete submission after publishing: ${slug}`,
-        branch,
-        sha: sha  // Would need to get the file's SHA first
-      })
-    });
-    
-    if (!deleteResponse.ok) {
-      console.warn("Failed to delete original submission file, but story was published");
+    // Step 3: Delete the original file from submissions if we found it
+    if (sourceSha) {
+      try {
+        await octokit.repos.deleteFile({
+          owner,
+          repo,
+          path: sourcePath,
+          message: `Delete submission after publishing: ${slug}`,
+          sha: sourceSha,
+          branch
+        });
+        console.log(`Source file deleted successfully: ${sourcePath}`);
+      } catch (error) {
+        console.warn(`Failed to delete source file, but story was published: ${error.message}`);
+        // We'll consider this a non-fatal error since the main goal of publishing was accomplished
+      }
     }
-    */
     
     return {
       statusCode: 200,
