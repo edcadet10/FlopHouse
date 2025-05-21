@@ -60,6 +60,38 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
   
+  // Get Auth0 user
+  const { user, isLoading: authLoading } = useUser();
+  
+  // Set authentication state based on Auth0
+  useEffect(() => {
+    setIsAuthenticated(!!user);
+  }, [user]);
+  
+  // Load comments for this story
+  const loadComments = async () => {
+    if (!story) return;
+    
+    try {
+      setLoadingComments(true);
+      
+      const response = await fetch(`/.netlify/functions/story-comments/${story.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error loading comments: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setComments(data.comments || []);
+      setCommentError(null);
+    } catch (err: unknown) {
+      console.error("Failed to load comments:", err);
+      setCommentError("Failed to load comments. Please try again later.");
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+  
   useEffect(() => {
     const fetchStory = async () => {
       try {
@@ -110,35 +142,6 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
       }
     }
   }, [slug]);
-  
-  // Get Auth0 user
-  const { user, isLoading: authLoading } = useUser();
-  
-  // Set authentication state based on Auth0
-  useEffect(() => {
-    setIsAuthenticated(!!user);
-  }, [user]);
-    if (!story) return;
-    
-    try {
-      setLoadingComments(true);
-      
-      const response = await fetch(`/.netlify/functions/story-comments/${story.id}`);
-      
-      if (!response.ok) {
-        throw new Error(`Error loading comments: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setComments(data.comments || []);
-      setCommentError(null);
-    } catch (err: unknown) {
-      console.error("Failed to load comments:", err);
-      setCommentError("Failed to load comments. Please try again later.");
-    } finally {
-      setLoadingComments(false);
-    }
-  };
   
   useEffect(() => {
     if (story) {
