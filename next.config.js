@@ -10,6 +10,11 @@ const nextConfig = {
   trailingSlash: false, // Changed to false for cleaner URLs
   // Ensure the public directory is properly copied
   distDir: 'out',
+  // Add cache busting for better cache control
+  generateBuildId: async () => {
+    // Use timestamp to ensure unique build IDs
+    return `build-${Date.now()}`
+  },
   // Don't use exportPathMap with App Router
   // Instead, we're using generateStaticParams in page components
 }

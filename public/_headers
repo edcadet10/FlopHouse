@@ -1,0 +1,55 @@
+# Cache headers for different file types
+
+# Main HTML files - short cache, always revalidate
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+  
+# Homepage and dynamic routes - no cache
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+  
+# Story pages - short cache since content updates
+/story/*
+  Cache-Control: public, max-age=300, must-revalidate
+  
+# Browse page - short cache since new stories get added
+/browse
+  Cache-Control: public, max-age=300, must-revalidate
+
+# Admin interface - no cache for security and functionality
+/admin/*
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Static assets - longer cache with versioning
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css  
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images - medium cache time
+/*.png
+  Cache-Control: public, max-age=86400
+
+/*.jpg
+  Cache-Control: public, max-age=86400
+
+/*.jpeg
+  Cache-Control: public, max-age=86400
+
+/*.gif
+  Cache-Control: public, max-age=86400
+
+/*.webp
+  Cache-Control: public, max-age=86400
+
+/*.svg
+  Cache-Control: public, max-age=86400
+
+# API endpoints - very short cache
+/api/*
+  Cache-Control: public, max-age=60, must-revalidate
+
+# Netlify functions - short cache with revalidation
+/.netlify/functions/*
+  Cache-Control: public, max-age=300, must-revalidate

@@ -61,7 +61,8 @@ exports.handler = async (event, context) => {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=600" // Cache for 10 minutes
+        "Cache-Control": "public, max-age=300, must-revalidate", // 5 minutes cache for individual stories
+        "Netlify-CDN-Cache-Control": "public, max-age=600, must-revalidate" // 10 minutes CDN cache
       },
       body: JSON.stringify(story)
     };

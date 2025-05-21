@@ -44,10 +44,11 @@ exports.handler = async (event, context) => {
     let stories = getEmptyStories();
     
     return {
-      statusCode: 200, // Return 200 with fallback data instead of 500
+      statusCode: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=60" // Short cache time for fallback data
+        "Cache-Control": "public, max-age=60, must-revalidate", // Very short cache for fallback data
+        "Netlify-CDN-Cache-Control": "public, max-age=60, must-revalidate"
       },
       body: JSON.stringify({
         stories: stories,
@@ -105,7 +106,8 @@ function formatResponse(stories, industry, failureReason, page, limit) {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "public, max-age=300" // Cache for 5 minutes
+      "Cache-Control": "public, max-age=120, must-revalidate", // 2 minutes cache for story lists
+      "Netlify-CDN-Cache-Control": "public, max-age=300, must-revalidate" // 5 minutes CDN cache
     },
     body: JSON.stringify({
       stories: paginatedStories,
