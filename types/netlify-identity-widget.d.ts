@@ -8,6 +8,8 @@ declare module 'netlify-identity-widget' {
     role?: string;
   }
 
+  type EventCallback = ((user?: User) => void) | ((err: Error) => void);
+
   interface NetlifyIdentityWidget {
     init: (options?: { APIUrl?: string; logo?: boolean }) => void;
     open: (tab?: string) => void;
@@ -16,10 +18,8 @@ declare module 'netlify-identity-widget' {
     logout: () => void;
     refresh: () => Promise<string>;
     currentUser: () => User | null;
-    on: (event: 'login' | 'logout' | 'init' | 'open' | 'close', callback: (user?: User) => void) => void;
-    on: (event: 'error', callback: (err: Error) => void) => void;
-    off: (event: 'login' | 'logout' | 'init' | 'open' | 'close', callback: (user?: User) => void) => void;
-    off: (event: 'error', callback: (err: Error) => void) => void;
+    on: (event: string, callback: EventCallback) => void;
+    off: (event: string, callback: EventCallback) => void;
     gotrue?: any;
   }
 
