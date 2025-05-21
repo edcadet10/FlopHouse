@@ -67,8 +67,11 @@ collections:
         name: "approve"
         widget: "select"
         options:
-          - { label: "Pending Review", value: "pending" }
-          - { label: "Approve & Publish", value: "approve" }
-          - { label: "Reject", value: "reject" }
+          - label: "Pending Review"
+            value: "pending"
+          - label: "Approve & Publish"
+            value: "approve"
+          - label: "Reject"
+            value: "reject"
         default: "pending"
         hint: "Select 'Approve & Publish' to move this submission to the published stories"
