@@ -185,25 +185,37 @@ function isValidEmail(email) {
 
 // Helper function to format data as markdown with frontmatter
 function formatAsMarkdown(data, id, timestamp, slug) {
+  // Escape quotes in string values for YAML frontmatter
+  const escapeYamlString = (str) => {
+    if (!str) return '';
+    // If string contains special YAML characters, wrap in quotes and escape internal quotes
+    if (str.includes(':') || str.includes('"') || str.includes("'") || str.includes('\n')) {
+      return `"${str.replace(/"/g, '\\"')}"`;
+    }
+    return str;
+  };
+
+  // Combine story and lessons into body field
+  let body = data.story || '';
+  if (data.lessons && data.lessons.trim()) {
+    body += '\n\n## Lessons Learned\n\n' + data.lessons;
+  }
+
   return `---
 id: ${id}
-title: "${data.title}"
-companyName: "${data.companyName}"
-industry: "${data.industry}"
-fundingAmount: "${data.fundingAmount || 'Not specified'}"
-failureReason: "${data.failureReason}"
-date: "${timestamp}"
-email: "${data.email || ''}"
+title: ${escapeYamlString(data.title)}
+companyName: ${escapeYamlString(data.companyName)}
+industry: ${data.industry}
+fundingAmount: ${escapeYamlString(data.fundingAmount || '')}
+failureReason: ${data.failureReason}
+date: ${timestamp}
+email: ${escapeYamlString(data.email || '')}
 published: false
-slug: "${slug}"
+slug: ${slug}
+approve: pending
 ---
 
-${data.story}
-
-## Lessons Learned
-
-${data.lessons || 'No lessons provided.'}
-`;
+${body}`;
 }
 
 // Helper function to generate a unique ID
