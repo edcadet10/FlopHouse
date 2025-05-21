@@ -66,7 +66,7 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
         console.log("Fetching story with slug:", slug);
         
         // Try to fetch from API
-        const response = await fetch(`/api/get-story/${slug}`);
+        const response = await fetch(`/.netlify/functions/get-story/${slug}`);
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -141,7 +141,7 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
     try {
       setLoadingComments(true);
       
-      const response = await fetch(`/api/story-comments/${story.id}`);
+      const response = await fetch(`/.netlify/functions/story-comments/${story.id}`);
       
       if (!response.ok) {
         throw new Error(`Error loading comments: ${response.status}`);
@@ -179,7 +179,7 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
       setSubmittingComment(true);
       setCommentError(null);
       
-      const response = await fetch(`/api/story-comments/${story.id}`, {
+      const response = await fetch(`/.netlify/functions/story-comments/${story.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -260,7 +260,7 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
           }
         }
         
-        await fetch('/api/upvote-story', {
+        await fetch('/.netlify/functions/upvote-story', {
           method: 'POST',
           headers,
           body: JSON.stringify({ storyId: story.id })

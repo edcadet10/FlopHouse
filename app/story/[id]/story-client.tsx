@@ -98,7 +98,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
     try {
       setLoadingComments(true);
       
-      const response = await fetch(`/api/story-comments/${story.id}`);
+      const response = await fetch(`/.netlify/functions/story-comments/${story.id}`);
       
       if (!response.ok) {
         throw new Error(`Error loading comments: ${response.status}`);
@@ -130,7 +130,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       setSubmittingComment(true);
       setCommentError(null);
       
-      const response = await fetch(`/api/story-comments/${story.id}`, {
+      const response = await fetch(`/.netlify/functions/story-comments/${story.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -211,7 +211,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
           }
         }
         
-        await fetch('/api/upvote-story', {
+        await fetch('/.netlify/functions/upvote-story', {
           method: 'POST',
           headers,
           body: JSON.stringify({ storyId: story.id })

@@ -1,11 +1,9 @@
-feat: implement Netlify Identity for upvoting
+fix: update API paths to use direct Netlify Functions format
 
-- Add identity-modal component for seamless authentication
-- Update upvote-story.js to verify JWT tokens and record unique user IDs
-- Modify client components to handle authentication flow
-- Track unique upvoters instead of just incrementing a counter
-- Add documentation for the implementation
+- Change all API calls from /api/* to /.netlify/functions/* format
+- Fix the upvote feature by ensuring correct API endpoints
+- Update paths in story client components and fetcher
+- This resolves the 500 error when clicking the upvote button
 
-This change improves data quality by preventing duplicate upvotes
-and enhances the user experience with a streamlined magic link
-authentication flow.
+Although there's a redirect rule in netlify.toml, using the direct
+path format ensures consistent behavior across all environments.

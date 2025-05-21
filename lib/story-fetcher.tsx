@@ -64,7 +64,7 @@ export function useStoryFetcher(slug: string | undefined) {
         console.log("Fetching story with slug:", slug);
         
         // Try to fetch from API
-        const response = await fetch(`/api/get-story/${slug}`);
+        const response = await fetch(`/.netlify/functions/get-story/${slug}`);
         
         if (!response.ok) {
           if (response.status === 404) {
