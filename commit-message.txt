@@ -1,8 +1,8 @@
-fix: resolve TypeScript build error with Netlify Identity
+fix: remove TypeScript directive and improve client-only component
 
-- Fix TypeScript error with `@ts-expect-error` directive
-- Use dynamic import with { ssr: false } to properly load client components
-- Add ClientOnly wrapper component for cleaner integration
-- Ensure proper client/server component boundaries
+- Completely remove `@ts-expect-error` directive that was causing build failure
+- Enhance ClientOnly component with proper client-side detection
+- Implement the React standard pattern for avoiding server-side rendering
+- Fix Netlify build issues with TypeScript errors
 
-This fixes the build error: "Unused '@ts-expect-error' directive"
+This properly handles the Next.js server/client component boundary.

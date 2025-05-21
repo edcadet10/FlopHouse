@@ -43,7 +43,6 @@ export default function RootLayout({
         >
           {/* Netlify Identity initializer - use dynamic import with no SSR */}
           <ClientOnly>
-            {/* @ts-expect-error Server Component */}
             <NetlifyIdentityLoader />
           </ClientOnly>
           
