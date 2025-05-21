@@ -7,7 +7,7 @@ isModification: null
 raw: >
   ---
 
-  id: mayj064qa2xm3
+  id: mayjygk2krtkm
 
   title: "PetPal: How Our Pet-Sitting Marketplace Failed to Scale"
 
@@ -19,7 +19,7 @@ raw: >
 
   failureReason: "other"
 
-  date: "2025-05-21T22:40:04.106Z"
+  date: "2025-05-21T23:06:43.922Z"
 
   email: "cadetmej97@gmail.com"
 
@@ -204,10 +204,10 @@ data:
   approve: approve
   failureReason: other
   published: false
-  date: 2025-05-21T22:40:04.106Z
+  date: 2025-05-21T23:06:43.922Z
   fundingAmount: $750K
   title: "PetPal: How Our Pet-Sitting Marketplace Failed to Scale"
-  id: mayj064qa2xm3
+  id: mayjygk2krtkm
   email: cadetmej97@gmail.com
   industry: marketplace
 author: ""
