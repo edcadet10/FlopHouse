@@ -3,12 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import NetlifyIdentityWidget from 'netlify-identity-widget';
 
-declare global {
-  interface Window {
-    netlifyIdentity: any;
-  }
-}
+// No need to redeclare the window interface
 
 interface IdentityModalProps {
   isOpen: boolean;
@@ -28,15 +25,15 @@ export default function IdentityModal({
 
   useEffect(() => {
     // Ensure the widget is loaded
-    if (typeof window !== 'undefined' && window.netlifyIdentity) {
+    if (typeof window !== 'undefined') {
       // Initialize with the correct site URL if not already initialized
       const siteUrl = window.location.hostname.includes('localhost') 
         ? 'flop-house.netlify.app' 
         : window.location.hostname;
       
       // Only initialize if not already initialized
-      if (!window.netlifyIdentity.gotrue) {
-        window.netlifyIdentity.init({
+      if (!NetlifyIdentityWidget.gotrue) {
+        NetlifyIdentityWidget.init({
           APIUrl: `https://${siteUrl}/.netlify/identity`,
           logo: false
         });
@@ -59,19 +56,19 @@ export default function IdentityModal({
       };
 
       // Listen for events
-      window.netlifyIdentity.on('login', handleLogin);
-      window.netlifyIdentity.on('error', handleLoginError);
+      NetlifyIdentityWidget.on('login', handleLogin);
+      NetlifyIdentityWidget.on('error', handleLoginError);
 
       // Cleanup event listeners
       return () => {
-        window.netlifyIdentity.off('login', handleLogin);
-        window.netlifyIdentity.off('error', handleLoginError);
+        NetlifyIdentityWidget.off('login', handleLogin);
+        NetlifyIdentityWidget.off('error', handleLoginError);
       };
     }
   }, [onSuccess, onClose]);
 
   const handleLogin = () => {
-    if (typeof window !== 'undefined' && window.netlifyIdentity) {
+    if (typeof window !== 'undefined') {
       setLoading(true);
       setError(null);
       
@@ -80,7 +77,7 @@ export default function IdentityModal({
         console.log('Opening Netlify Identity login modal');
         
         // Use openModal instead of open for more control
-        window.netlifyIdentity.openModal('login');
+        NetlifyIdentityWidget.openModal('login');
       } catch (e) {
         console.error('Error opening login modal:', e);
         setError('Authentication service not available. Please try again later.');
