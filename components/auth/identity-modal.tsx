@@ -31,11 +31,16 @@ export default function IdentityModal({
       
       // Only initialize if not already initialized
       if (!NetlifyIdentityWidget.gotrue) {
-        NetlifyIdentityWidget.init({
-          APIUrl: `https://${siteUrl}/.netlify/identity`,
-          logo: false
-        });
-        console.log('Initialized Netlify Identity for modal with site:', siteUrl);
+        try {
+          NetlifyIdentityWidget.init({
+            APIUrl: `https://${siteUrl}/.netlify/identity`,
+            logo: false
+          });
+          console.log('Initialized Netlify Identity for modal with site:', siteUrl);
+        } catch (err) {
+          console.error('Failed to initialize Netlify Identity:', err);
+          setError('Authentication service initialization failed. Please try again later.');
+        }
       }
 
       // Handle login success
@@ -57,13 +62,22 @@ export default function IdentityModal({
       NetlifyIdentityWidget.on('login', handleLogin);
       NetlifyIdentityWidget.on('error', handleLoginError);
 
+      // Add timeout to detect if modal doesn't open properly
+      const modalTimeout = setTimeout(() => {
+        if (loading) {
+          setLoading(false);
+          setError('Authentication service timeout. Please check your Netlify Identity setup or network connection.');
+        }
+      }, 5000); // 5 second timeout
+
       // Cleanup event listeners
       return () => {
         NetlifyIdentityWidget.off('login', handleLogin);
         NetlifyIdentityWidget.off('error', handleLoginError);
+        clearTimeout(modalTimeout);
       };
     }
-  }, [onSuccess, onClose]);
+  }, [onSuccess, onClose, loading]);
 
   const handleLogin = () => {
     if (typeof window !== 'undefined') {
@@ -120,16 +134,30 @@ export default function IdentityModal({
             {loading ? (
               <>
                 <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                {NetlifyIdentityWidget.currentUser() ? 'Processing...' : 'Opening Login...'}
+                Opening Login...
               </>
             ) : (
               'Continue with Email'
             )}
           </Button>
           
+          {loading && (
+            <Button 
+              variant="outline" 
+              className="w-full mt-2 border-white/10 text-zinc-300"
+              onClick={() => {
+                setLoading(false);
+                setError('Login process was cancelled.');
+              }}
+            >
+              Cancel
+            </Button>
+          )}
+          
           <p className="text-xs text-zinc-400 text-center mt-4">
-            {loading ? 'If the login widget doesn\'t appear, try refreshing the page.' : 
-            'We\'ll send you a magic link to your email. No password required!'}
+            {loading ? 
+              'If the login widget doesn\'t appear, try refreshing the page or check your Netlify settings.' : 
+              'We\'ll send you a magic link to your email. No password required!'}
           </p>
         </div>
       </div>
