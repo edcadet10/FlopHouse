@@ -72,9 +72,20 @@ export default function ContactPage() {
     setSubmitError(null)
     
     try {
-      // This would normally send the form data to a server endpoint
-      // For now, we'll simulate a successful submission after a brief delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Send the form data to the Netlify function
+      const response = await fetch('/.netlify/functions/contact-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formState)
+      })
+      
+      // Check if the response is successful
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to submit the form')
+      }
       
       // Reset form and show success message
       setFormState({
@@ -86,7 +97,7 @@ export default function ContactPage() {
       setSubmitSuccess(true)
     } catch (error) {
       console.error("Form submission error:", error)
-      setSubmitError("There was a problem submitting your message. Please try again.")
+      setSubmitError(error instanceof Error ? error.message : "There was a problem submitting your message. Please try again.")
     } finally {
       setSubmitting(false)
     }

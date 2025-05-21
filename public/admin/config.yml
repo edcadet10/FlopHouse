@@ -51,3 +51,16 @@ collections:
           - { label: "Approve & Publish", value: "approve" }
           - { label: "Reject", value: "reject" }
         default: "pending"
+
+  - name: "contact-messages"
+    label: "Contact Messages"
+    folder: "content/contact-messages"
+    create: false # Only created via form submissions
+    slug: "{{year}}-{{month}}-{{day}}-{{hour}}-{{minute}}-{{second}}"
+    fields:
+      - {label: "Name", name: "name", widget: "string", required: true}
+      - {label: "Email", name: "email", widget: "string", required: true}
+      - {label: "Subject", name: "subject", widget: "string", required: false}
+      - {label: "Message", name: "message", widget: "text", required: true}
+      - {label: "Submission Date", name: "date", widget: "datetime", required: true}
+      - {label: "Read", name: "read", widget: "boolean", default: false}
