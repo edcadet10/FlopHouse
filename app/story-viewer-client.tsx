@@ -291,9 +291,10 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
     );
   }
   
+  // The main render for showing a story
   return (
     <div style={pageStyles}>
-      <main className="min-h-screen pt-16"> {/* Added padding to avoid overlap with navbar */}
+      <main className="min-h-screen pt-16">
         <div className="container px-4 py-12 mx-auto max-w-4xl">
           {/* Header with breadcrumb */}
           <div className="mb-8">
@@ -304,161 +305,162 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
               <span>/</span>
               <span className="text-zinc-300">{story.title}</span>
             </div>
+            
+            <a href="/#/browse" className="inline-flex items-center text-sm text-zinc-400 hover:text-cyan-400 transition-colors mb-4">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back to all stories
+            </a>
+            
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              {story.title}
+            </h1>
+            
+            <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm mb-6">
+              <div className="px-3 py-1 bg-white/5 rounded-full text-cyan-300 border border-cyan-500/20 flex items-center">
+                <Zap className="h-3 w-3 mr-1" />
+                {story.industry}
+              </div>
+              
+              <div className="px-3 py-1 bg-white/5 rounded-full text-cyan-300 border border-cyan-500/20 flex items-center">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {story.fundingAmount}
+              </div>
+              
+              <div className="px-3 py-1 bg-white/5 rounded-full text-cyan-300 border border-cyan-500/20 flex items-center">
+                <Flame className="h-3 w-3 mr-1" />
+                {story.failureReason}
+              </div>
+              
+              <div className="text-zinc-400">
+                <span className="mr-4">{story.companyName}</span>
+                <span className="mr-4">•</span>
+                <span className="mr-4">{story.date}</span>
+                <span>{story.readTime}</span>
+              </div>
+            </div>
+          </div>
           
-          <a href="/#/browse" className="inline-flex items-center text-sm text-zinc-400 hover:text-cyan-400 transition-colors mb-4">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to all stories
-          </a>
+          {/* Story content */}
+          <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 md:p-8 mb-8">
+            <div className="prose prose-invert prose-cyan max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: story.contentHtml }} />
+            </div>
+          </div>
           
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            {story.title}
-          </h1>
-          
-          <div className="flex flex-wrap items-center gap-3 md:gap-6 text-sm mb-6">
-            <div className="px-3 py-1 bg-white/5 rounded-full text-cyan-300 border border-cyan-500/20 flex items-center">
-              <Zap className="h-3 w-3 mr-1" />
-              {story.industry}
+          {/* Engagement footer */}
+          <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+            <div className="flex items-center">
+              <Button 
+                variant={upvoted ? "default" : "outline"}
+                size="sm"
+                className={upvoted ? "cursor-default" : ""}
+                onClick={handleUpvote}
+                disabled={upvoting || upvoted}
+              >
+                <ThumbsUp className="h-4 w-4 mr-2" />
+                {upvoted ? "Upvoted" : "Upvote"} • {story.upvotes}
+              </Button>
             </div>
             
-            <div className="px-3 py-1 bg-white/5 rounded-full text-cyan-300 border border-cyan-500/20 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              {story.fundingAmount}
+            <div className="flex flex-col md:flex-row items-center gap-3 text-zinc-400 text-sm">
+              <span>Help others learn from your failures</span>
+              <Button asChild size="sm">
+                <a href="/#/submit">
+                  Share Your Story
+                </a>
+              </Button>
             </div>
-            
-            <div className="px-3 py-1 bg-white/5 rounded-full text-cyan-300 border border-cyan-500/20 flex items-center">
-              <Flame className="h-3 w-3 mr-1" />
-              {story.failureReason}
-            </div>
-            
-            <div className="text-zinc-400">
-              <span className="mr-4">{story.companyName}</span>
-              <span className="mr-4">•</span>
-              <span className="mr-4">{story.date}</span>
-              <span>{story.readTime}</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Story content */}
-        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 md:p-8 mb-8">
-          <div className="prose prose-invert prose-cyan max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: story.contentHtml }} />
-          </div>
-        </div>
-        
-        {/* Engagement footer */}
-        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-          <div className="flex items-center">
-            <Button 
-              variant={upvoted ? "default" : "outline"}
-              size="sm"
-              className={upvoted ? "cursor-default" : ""}
-              onClick={handleUpvote}
-              disabled={upvoting || upvoted}
-            >
-              <ThumbsUp className="h-4 w-4 mr-2" />
-              {upvoted ? "Upvoted" : "Upvote"} • {story.upvotes}
-            </Button>
           </div>
           
-          <div className="flex flex-col md:flex-row items-center gap-3 text-zinc-400 text-sm">
-            <span>Help others learn from your failures</span>
-            <Button asChild size="sm">
-              <a href="/#/submit">
-                Share Your Story
-              </a>
-            </Button>
-          </div>
-        </div>
-        
-        {/* Comments section */}
-        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 md:p-8 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
-            <MessageCircle className="h-5 w-5 mr-2 text-cyan-500" />
-            Comments {comments.length > 0 && `(${comments.length})`}
-          </h2>
-          
-          {/* Comment form */}
-          <form onSubmit={handleSubmitComment} className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-zinc-300 mb-1">
-                  Your Name
+          {/* Comments section */}
+          <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 md:p-8 mb-8">
+            <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+              <MessageCircle className="h-5 w-5 mr-2 text-cyan-500" />
+              Comments {comments.length > 0 && `(${comments.length})`}
+            </h2>
+            
+            {/* Comment form */}
+            <form onSubmit={handleSubmitComment} className="mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-zinc-300 mb-1">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={commentName}
+                    onChange={(e) => setCommentName(e.target.value)}
+                    className="w-full h-10 px-3 py-2 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white"
+                    placeholder="Enter your name"
+                  />
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <label htmlFor="comment" className="block text-sm font-medium text-zinc-300 mb-1">
+                  Your Comment
                 </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={commentName}
-                  onChange={(e) => setCommentName(e.target.value)}
-                  className="w-full h-10 px-3 py-2 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white"
-                  placeholder="Enter your name"
+                <textarea
+                  id="comment"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white"
+                  rows={4}
+                  placeholder="Share your thoughts..."
                 />
               </div>
-            </div>
+              
+              {commentError && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-400 text-sm">
+                  {commentError}
+                </div>
+              )}
+              
+              <Button 
+                type="submit" 
+                disabled={submittingComment || !commentName.trim() || !commentText.trim()}
+                className="flex items-center"
+              >
+                {submittingComment ? (
+                  <>
+                    <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Post Comment
+                  </>
+                )}
+              </Button>
+            </form>
             
-            <div className="mb-4">
-              <label htmlFor="comment" className="block text-sm font-medium text-zinc-300 mb-1">
-                Your Comment
-              </label>
-              <textarea
-                id="comment"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white"
-                rows={4}
-                placeholder="Share your thoughts..."
-              />
-            </div>
-            
-            {commentError && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-400 text-sm">
-                {commentError}
+            {/* Comments list */}
+            {loadingComments ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
+              </div>
+            ) : comments.length > 0 ? (
+              <div className="space-y-6">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-cyan-300">{comment.name}</span>
+                      <span className="text-xs text-zinc-500">{formatCommentDate(comment.date)}</span>
+                    </div>
+                    <p className="text-zinc-300">{comment.comment}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-zinc-400">No comments yet. Be the first to share your thoughts!</p>
               </div>
             )}
-            
-            <Button 
-              type="submit" 
-              disabled={submittingComment || !commentName.trim() || !commentText.trim()}
-              className="flex items-center"
-            >
-              {submittingComment ? (
-                <>
-                  <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Post Comment
-                </>
-              )}
-            </Button>
-          </form>
-          
-          {/* Comments list */}
-          {loadingComments ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
-            </div>
-          ) : comments.length > 0 ? (
-            <div className="space-y-6">
-              {comments.map((comment) => (
-                <div key={comment.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-medium text-cyan-300">{comment.name}</span>
-                    <span className="text-xs text-zinc-500">{formatCommentDate(comment.date)}</span>
-                  </div>
-                  <p className="text-zinc-300">{comment.comment}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-zinc-400">No comments yet. Be the first to share your thoughts!</p>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
