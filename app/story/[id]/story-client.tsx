@@ -47,9 +47,13 @@ export default function StoryClient({ params }: { params: { id: string } }) {
     if (typeof window !== 'undefined' && story) {
       const upvotedStories = localStorage.getItem('upvotedStories');
       if (upvotedStories) {
-        const upvotedList = JSON.parse(upvotedStories);
-        if (story.id) {
-          setUpvoted(upvotedList.includes(story.id));
+        try {
+          const upvotedList = JSON.parse(upvotedStories);
+          if (Array.isArray(upvotedList) && story.id) {
+            setUpvoted(upvotedList.includes(story.id));
+          }
+        } catch (err: unknown) {
+          console.error('Error parsing upvoted stories:', err);
         }
       }
       
@@ -74,7 +78,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       const data = await response.json();
       setComments(data.comments || []);
       setCommentError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load comments:", err);
       setCommentError("Failed to load comments. Please try again later.");
     } finally {
@@ -119,9 +123,13 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       
       // Reload comments
       await loadComments();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to submit comment:", err);
-      setCommentError(err.message || "Failed to submit comment. Please try again later.");
+      if (err instanceof Error) {
+        setCommentError(err.message);
+      } else {
+        setCommentError("Failed to submit comment. Please try again later.");
+      }
     } finally {
       setSubmittingComment(false);
     }
@@ -138,10 +146,20 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       setUpvoted(true);
       
       // Store in localStorage to prevent multiple upvotes
-      if (typeof window !== 'undefined') {
-        const upvotedStories = localStorage.getItem('upvotedStories');
-        const upvotedList = upvotedStories ? JSON.parse(upvotedStories) : [];
-        localStorage.setItem('upvotedStories', JSON.stringify([...upvotedList, story.id]));
+      if (typeof window !== 'undefined' && story.id) {
+        try {
+          const upvotedStories = localStorage.getItem('upvotedStories');
+          const upvotedList = upvotedStories ? JSON.parse(upvotedStories) : [];
+          if (Array.isArray(upvotedList)) {
+            localStorage.setItem('upvotedStories', JSON.stringify([...upvotedList, story.id]));
+          } else {
+            localStorage.setItem('upvotedStories', JSON.stringify([story.id]));
+          }
+        } catch (err: unknown) {
+          console.error('Error storing upvoted stories:', err);
+          // Still create a new entry if parsing failed
+          localStorage.setItem('upvotedStories', JSON.stringify([story.id]));
+        }
       }
       
       // Call API
@@ -157,7 +175,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         console.error('Error calling API:', error);
         // We already updated the UI, so no need to show an error
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error upvoting:', err);
     } finally {
       setUpvoting(false);

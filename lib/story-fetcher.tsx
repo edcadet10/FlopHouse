@@ -76,9 +76,14 @@ export function useStoryFetcher(slug: string | undefined) {
         const data = await response.json();
         setStory(data);
         setError(null);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("Failed to load story:", err);
-        setError(err.message || "Failed to load story. Please try again later.");
+        // Type guard to safely access error message
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Failed to load story. Please try again later.");
+        }
         setStory(null);
       } finally {
         setLoading(false);
