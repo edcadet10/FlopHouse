@@ -3,10 +3,8 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react"
+import { TrendingUp, Zap, ArrowLeft, FileText, Flame, AlertCircle, MessageCircle, Send } from "lucide-react"
 import { useStoryFetcher, Story } from "@/lib/story-fetcher"
-import Auth0Modal from "@/components/auth/auth0-modal"
-import { useUser } from '@/components/auth/auth-context'
 
 // Comment interface
 interface Comment {
@@ -33,11 +31,6 @@ export default function StoryClient({ params }: { params: { id: string } }) {
   // Use the story fetcher hook
   const { story, loading, error } = useStoryFetcher(params.id);
   
-  const [upvoting, setUpvoting] = useState(false)
-  const [upvoted, setUpvoted] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  
   // Comments state
   const [comments, setComments] = useState<Comment[]>([])
   const [loadingComments, setLoadingComments] = useState(false)
@@ -46,29 +39,8 @@ export default function StoryClient({ params }: { params: { id: string } }) {
   const [submittingComment, setSubmittingComment] = useState(false)
   const [commentError, setCommentError] = useState<string | null>(null)
   
-  // Get Auth0 user
-  const { user, isLoading: authLoading } = useUser();
-  
-  // Set authentication state based on Auth0 user
   useEffect(() => {
-    setIsAuthenticated(!!user);
-  }, [user]);
-  
-  useEffect(() => {
-    // Check if user has upvoted this story before
-    if (typeof window !== 'undefined' && story) {
-      const upvotedStories = localStorage.getItem('upvotedStories');
-      if (upvotedStories) {
-        try {
-          const upvotedList = JSON.parse(upvotedStories);
-          if (Array.isArray(upvotedList) && story.id) {
-            setUpvoted(upvotedList.includes(story.id));
-          }
-        } catch (err: unknown) {
-          console.error('Error parsing upvoted stories:', err);
-        }
-      }
-      
+    if (story) {
       // Load comments for this story
       loadComments();
     }
@@ -144,70 +116,6 @@ export default function StoryClient({ params }: { params: { id: string } }) {
       }
     } finally {
       setSubmittingComment(false);
-    }
-  };
-  
-  // Handle upvote
-  const handleUpvote = async () => {
-    if (upvoted || !story) return;
-    
-    // If not authenticated, show auth modal
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-    
-    setUpvoting(true);
-    
-    try {
-      // Update local state immediately for responsive UI
-      setUpvoted(true);
-      
-      // Store in localStorage as a fallback
-      if (typeof window !== 'undefined' && story.id) {
-        try {
-          const upvotedStories = localStorage.getItem('upvotedStories');
-          const upvotedList = upvotedStories ? JSON.parse(upvotedStories) : [];
-          if (Array.isArray(upvotedList)) {
-            localStorage.setItem('upvotedStories', JSON.stringify([...upvotedList, story.id]));
-          } else {
-            localStorage.setItem('upvotedStories', JSON.stringify([story.id]));
-          }
-        } catch (err: unknown) {
-          console.error('Error storing upvoted stories:', err);
-          localStorage.setItem('upvotedStories', JSON.stringify([story.id]));
-        }
-      }
-      
-      // Call API with auth token if available
-      try {
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json'
-        };
-        
-        // Auth0 token is handled by the session cookie
-        
-        await fetch('/.netlify/functions/upvote-story', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ storyId: story.id })
-        });
-      } catch (error) {
-        console.error('Error calling API:', error);
-        // We already updated the UI, so no need to show an error
-      }
-    } catch (err: unknown) {
-      console.error('Error upvoting:', err);
-    } finally {
-      setUpvoting(false);
-    }
-  };
-  
-  // Handle authenticated upvote after successful login
-  const handleAuthSuccess = () => {
-    // Proceed with upvote after authentication
-    if (story && !upvoted) {
-      handleUpvote();
     }
   };
   
@@ -320,19 +228,6 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         
         {/* Engagement footer */}
         <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-          <div className="flex items-center">
-            <Button 
-              variant={upvoted ? "default" : "outline"}
-              size="sm"
-              className={upvoted ? "cursor-default" : ""}
-              onClick={handleUpvote}
-              disabled={upvoting || upvoted}
-            >
-              <ThumbsUp className="h-4 w-4 mr-2" />
-              {upvoted ? "Upvoted" : "Upvote"} • {story.upvotes}
-            </Button>
-          </div>
-          
           <div className="flex flex-col md:flex-row items-center gap-3 text-zinc-400 text-sm">
             <span>Help others learn from your failures</span>
             <Button asChild size="sm">
@@ -431,14 +326,6 @@ export default function StoryClient({ params }: { params: { id: string } }) {
           )}
         </div>
       </div>
-      
-      {/* Auth0 Modal */}
-      <Auth0Modal 
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={handleAuthSuccess}
-        message="Sign in with your email to upvote this story"
-      />
     </main>
   );
 }

@@ -9,7 +9,6 @@ import ClientRedirects from './client-redirects';
 import HashRouter from '@/components/hash-router';
 import ClientOnly from '@/components/client-only';
 import dynamic from 'next/dynamic';
-import AuthProvider from '@/components/auth/auth0-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -41,21 +40,17 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            {/* Netlify Identity is no longer needed */}
-            
-            {/* Client-side redirects handler */}
-            <ClientRedirects />
-            
-            {/* Hash-based router for SPA behavior */}
-            <HashRouter />
-            
-            <Header />
-            <div className="flex-grow">
-              {children}
-            </div>
-            <Footer />
-          </AuthProvider>
+          {/* Client-side redirects handler */}
+          <ClientRedirects />
+          
+          {/* Hash-based router for SPA behavior */}
+          <HashRouter />
+          
+          <Header />
+          <div className="flex-grow">
+            {children}
+          </div>
+          <Footer />
         </ThemeProvider>
         {/* Remove Netlify Identity debug script */}
       </body>
