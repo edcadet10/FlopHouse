@@ -5,8 +5,8 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react"
 import { useStoryFetcher, Story } from "@/lib/story-fetcher"
-import IdentityModal from "@/components/auth/identity-modal"
-import NetlifyIdentityWidget from 'netlify-identity-widget'
+import Auth0Modal from "@/components/auth/auth0-modal"
+import { useUser } from '@auth0/nextjs-auth0/client'
 
 // Comment interface
 interface Comment {
@@ -46,31 +46,13 @@ export default function StoryClient({ params }: { params: { id: string } }) {
   const [submittingComment, setSubmittingComment] = useState(false)
   const [commentError, setCommentError] = useState<string | null>(null)
   
-  // Check if Netlify Identity is available and if user is authenticated
+  // Get Auth0 user
+  const { user, isLoading: authLoading } = useUser();
+  
+  // Set authentication state based on Auth0 user
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const user = NetlifyIdentityWidget.currentUser();
-      setIsAuthenticated(!!user);
-      
-      // Set up event listeners
-      const handleLogin = () => {
-        setIsAuthenticated(true);
-        setShowAuthModal(false);
-      };
-      
-      const handleLogout = () => {
-        setIsAuthenticated(false);
-      };
-      
-      NetlifyIdentityWidget.on('login', handleLogin);
-      NetlifyIdentityWidget.on('logout', handleLogout);
-      
-      return () => {
-        NetlifyIdentityWidget.off('login', handleLogin);
-        NetlifyIdentityWidget.off('logout', handleLogout);
-      };
-    }
-  }, []);
+    setIsAuthenticated(!!user);
+  }, [user]);
   
   useEffect(() => {
     // Check if user has upvoted this story before
@@ -170,7 +152,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
     if (upvoted || !story) return;
     
     // If not authenticated, show auth modal
-    if (!isAuthenticated && typeof window !== 'undefined') {
+    if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
@@ -203,14 +185,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
           'Content-Type': 'application/json'
         };
         
-        // Add authorization header if authenticated
-        if (typeof window !== 'undefined') {
-          const user = NetlifyIdentityWidget.currentUser();
-          if (user) {
-            const token = await user.jwt();
-            headers['Authorization'] = `Bearer ${token}`;
-          }
-        }
+        // Auth0 token is handled by the session cookie
         
         await fetch('/.netlify/functions/upvote-story', {
           method: 'POST',
@@ -457,8 +432,8 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         </div>
       </div>
       
-      {/* Netlify Identity Modal */}
-      <IdentityModal 
+      {/* Auth0 Modal */}
+      <Auth0Modal 
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}

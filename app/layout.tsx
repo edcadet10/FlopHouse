@@ -9,14 +9,15 @@ import ClientRedirects from './client-redirects';
 import HashRouter from '@/components/hash-router';
 import ClientOnly from '@/components/client-only';
 import dynamic from 'next/dynamic';
+import AuthProvider from '@/components/auth/auth0-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Import NetlifyIdentityInit dynamically with no SSR
-const NetlifyIdentityLoader = dynamic(
-  () => import('@/components/auth/netlify-identity-init'),
-  { ssr: false }
-);
+// We no longer need this as we're using Auth0
+// const NetlifyIdentityLoader = dynamic(
+//   () => import('@/components/auth/netlify-identity-init'),
+//   { ssr: false }
+// );
 
 export const metadata: Metadata = {
   title: 'FlopHouse - Learn from Failed Startup Ideas',
@@ -31,8 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Netlify Identity Widget - needed for CMS admin authentication */}
-        <Script src="https://identity.netlify.com/v1/netlify-identity-widget.js" strategy="beforeInteractive" />
+        {/* We no longer need Netlify Identity Widget */}
       </head>
       <body className={`${inter.className} flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900`}>
         <ThemeProvider
@@ -41,52 +41,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Netlify Identity initializer - use dynamic import with no SSR */}
-          <ClientOnly>
-            <NetlifyIdentityLoader />
-          </ClientOnly>
-          
-          {/* Client-side redirects handler */}
-          <ClientRedirects />
-          
-          {/* Hash-based router for SPA behavior */}
-          <HashRouter />
-          
-          <Header />
-          <div className="flex-grow">
-            {children}
-          </div>
-          <Footer />
+          <AuthProvider>
+            {/* Netlify Identity is no longer needed */}
+            
+            {/* Client-side redirects handler */}
+            <ClientRedirects />
+            
+            {/* Hash-based router for SPA behavior */}
+            <HashRouter />
+            
+            <Header />
+            <div className="flex-grow">
+              {children}
+            </div>
+            <Footer />
+          </AuthProvider>
         </ThemeProvider>
-        <Script id="netlify-identity-debug">
-          {`
-            if (window.netlifyIdentity) {
-              console.log('Netlify Identity widget loaded');
-              window.netlifyIdentity.on("init", user => {
-                console.log("Netlify Identity init event", user ? "with user" : "no user");
-                if (!user) {
-                  window.netlifyIdentity.on("login", () => {
-                    console.log("Netlify Identity login event");
-                  });
-                }
-              });
-              
-              window.netlifyIdentity.on("error", err => {
-                console.error("Netlify Identity error:", err);
-              });
-              
-              window.netlifyIdentity.on("open", () => {
-                console.log("Netlify Identity widget opened");
-              });
-              
-              window.netlifyIdentity.on("close", () => {
-                console.log("Netlify Identity widget closed");
-              });
-            } else {
-              console.warn('Netlify Identity widget not available');
-            }
-          `}
-        </Script>
+        {/* Remove Netlify Identity debug script */}
       </body>
     </html>
   );

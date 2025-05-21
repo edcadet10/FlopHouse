@@ -4,9 +4,12 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
+import Auth0Button from "@/components/auth/auth0-button"
+import { useUser } from '@auth0/nextjs-auth0/client'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user, isLoading } = useUser();
   
   return (
     <header className="py-4 border-b border-white/10">
@@ -33,6 +36,9 @@ export default function Header() {
             <Link href="/contact" className="text-zinc-400 hover:text-white transition-colors">
               Contact
             </Link>
+            <div className="ml-2">
+              <Auth0Button mode="button" />
+            </div>
             <Button asChild>
               <Link href="/submit">
                 Share Your Story
@@ -82,6 +88,9 @@ export default function Header() {
               >
                 Contact
               </Link>
+              <div className="py-2 px-4">
+                <Auth0Button mode="button" />
+              </div>
               <Button 
                 className="mt-2" 
                 onClick={() => setIsMenuOpen(false)}
