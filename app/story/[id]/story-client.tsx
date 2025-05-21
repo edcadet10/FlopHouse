@@ -220,9 +220,12 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         </div>
         
         {/* Story content */}
-        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 md:p-8 mb-8">
-          <div className="prose prose-invert prose-cyan max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: story.contentHtml }} />
+        <div className="bg-muted/30 backdrop-blur-sm border border-white/10 rounded-lg p-8 md:p-12 mb-8">
+          <div className="prose prose-lg prose-invert prose-cyan max-w-none">
+            <div 
+              className="story-content leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: story.contentHtml }} 
+            />
           </div>
         </div>
         
