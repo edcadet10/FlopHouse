@@ -122,7 +122,7 @@ export default function IdentityModal({
             {loading ? (
               <>
                 <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                {window.netlifyIdentity?.currentUser() ? 'Processing...' : 'Opening Login...'}
+                {NetlifyIdentityWidget.currentUser() ? 'Processing...' : 'Opening Login...'}
               </>
             ) : (
               'Continue with Email'

@@ -11,6 +11,11 @@ declare module 'netlify-identity-widget' {
     jwt: () => Promise<string>;
     // Add any other missing properties or methods used in your code
   }
+
+  // Augment the module's default export to include 'gotrue'
+  interface NetlifyIdentityAPI {
+    gotrue?: unknown;
+  }
 }
 
 // Extend the Window interface to include netlifyIdentity
