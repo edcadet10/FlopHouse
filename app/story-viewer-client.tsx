@@ -7,6 +7,8 @@ import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, Mes
 import { Story } from "@/lib/story-fetcher";
 // Add import for identity modal
 import IdentityModal from "@/components/auth/identity-modal";
+// Import the Netlify Identity Widget
+import NetlifyIdentityWidget from "netlify-identity-widget";
 
 // CSS for full-height story page
 const pageStyles = {
@@ -109,8 +111,8 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
       }
       
       // Check Netlify Identity
-      if (window.netlifyIdentity) {
-        const user = window.netlifyIdentity.currentUser();
+      if (typeof window !== 'undefined') {
+        const user = NetlifyIdentityWidget.currentUser();
         setIsAuthenticated(!!user);
         
         // Set up event listeners
@@ -123,12 +125,12 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
           setIsAuthenticated(false);
         };
         
-        window.netlifyIdentity.on('login', handleLogin);
-        window.netlifyIdentity.on('logout', handleLogout);
+        NetlifyIdentityWidget.on('login', handleLogin);
+        NetlifyIdentityWidget.on('logout', handleLogout);
         
         return () => {
-          window.netlifyIdentity.off('login', handleLogin);
-          window.netlifyIdentity.off('logout', handleLogout);
+          NetlifyIdentityWidget.off('login', handleLogin);
+          NetlifyIdentityWidget.off('logout', handleLogout);
         };
       }
     }
@@ -218,7 +220,7 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
     if (upvoted || !story) return;
     
     // If not authenticated, show auth modal
-    if (!isAuthenticated && typeof window !== 'undefined' && window.netlifyIdentity) {
+    if (!isAuthenticated && typeof window !== 'undefined') {
       setShowAuthModal(true);
       return;
     }
@@ -252,8 +254,8 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
         };
         
         // Add authorization header if authenticated
-        if (typeof window !== 'undefined' && window.netlifyIdentity) {
-          const user = window.netlifyIdentity.currentUser();
+        if (typeof window !== 'undefined') {
+          const user = NetlifyIdentityWidget.currentUser();
           if (user) {
             const token = await user.jwt();
             headers['Authorization'] = `Bearer ${token}`;
