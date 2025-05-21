@@ -25,7 +25,8 @@ export async function generateStaticParams() {
     { id: 'placeholder' },
     { id: 'dhjkhlhjkg' },
     { id: 'tetttttt' },
-    { id: 'fsadrewqadsar' }
+    { id: 'fsadrewqadsar' },
+    { id: 'petpal-how-our-pet-sitting-marketplace-failed-to-scale' }
     // Real stories from content/stories directory
   ]
 }

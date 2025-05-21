@@ -60,11 +60,10 @@
 
 # Handle dynamic story routes for client-side routing
 [[redirects]]
-  from = "/story/*"
-  to = "/404.html"
+  from = "/story/:slug"
+  to = "/story/:slug.html"
   status = 200
   force = false
-  conditions = {SkipExistingFiles = true}
 
 # Ensure Netlify CMS admin interface is properly served
 [[redirects]]
