@@ -5,8 +5,6 @@ import { AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import NetlifyIdentityWidget from 'netlify-identity-widget';
 
-// No need to redeclare the window interface
-
 interface IdentityModalProps {
   isOpen: boolean;
   onClose: () => void;
