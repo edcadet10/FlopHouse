@@ -140,7 +140,7 @@ export default function BrowsePage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 text-sm text-zinc-500 mb-4">
-            <Link href="/" className="hover:text-cyan-400 transition-colors">Home</Link>
+            <a href="/" className="hover:text-cyan-400 transition-colors">Home</a>
             <span>/</span>
             <span className="text-zinc-300">Browse Stories</span>
           </div>
@@ -281,7 +281,7 @@ export default function BrowsePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredStories.map((story) => (
-                  <Link href={`/story/${story.slug}`} key={story.id} className="group">
+                  <a href={`/#/story/${story.slug}`} key={story.id} className="group">
                     <Card className="overflow-hidden h-full bg-muted/50 backdrop-blur-sm border-white/10 hover-scale card-animated">
                       <CardHeader>
                         <div className="flex items-center gap-2 text-sm text-zinc-500 mb-2">
@@ -320,7 +320,7 @@ export default function BrowsePage() {
                         </div>
                       </CardFooter>
                     </Card>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </div>

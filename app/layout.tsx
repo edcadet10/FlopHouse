@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import Script from 'next/script';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
+import ClientRedirects from './client-redirects';
+import HashRouter from '@/components/hash-router';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,6 +33,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          {/* Client-side redirects handler */}
+          <ClientRedirects />
+          
+          {/* Hash-based router for SPA behavior */}
+          <HashRouter />
+          
           <Header />
           <div className="flex-grow">
             {children}
