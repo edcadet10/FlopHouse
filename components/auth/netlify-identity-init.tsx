@@ -2,6 +2,21 @@
 
 import { useEffect } from 'react';
 
+// Define types for Netlify Identity
+declare global {
+  interface Window {
+    netlifyIdentity: {
+      init: (params: { APIUrl: string; logo?: boolean }) => void;
+      on: (event: string, callback: (user?: unknown) => void) => void;
+      off: (event: string, callback: (user?: unknown) => void) => void;
+      currentUser: () => unknown | null;
+      gotrue?: unknown;
+      open: (action?: string) => void;
+      openModal: (action?: string) => void;
+    }
+  }
+}
+
 export default function NetlifyIdentityInit() {
   useEffect(() => {
     // Make sure netlifyIdentity is available before using it
@@ -19,11 +34,11 @@ export default function NetlifyIdentityInit() {
       console.log('Netlify Identity initialized with site:', siteUrl);
       
       // Set up event handlers for debugging
-      window.netlifyIdentity.on('login', user => {
+      window.netlifyIdentity.on('login', (user: unknown) => {
         console.log('User logged in:', user);
       });
       
-      window.netlifyIdentity.on('error', err => {
+      window.netlifyIdentity.on('error', (err: unknown) => {
         console.error('Netlify Identity error:', err);
       });
     } else {

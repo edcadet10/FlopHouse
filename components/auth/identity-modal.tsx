@@ -44,14 +44,15 @@ export default function IdentityModal({
       }
 
       // Handle login success
-      const handleLogin = () => {
+      const handleLogin = (user: unknown): void => {
+        console.log('Login success:', user);
         setLoading(false);
         onSuccess();
         onClose();
       };
 
       // Handle login error
-      const handleLoginError = (err: Error) => {
+      const handleLoginError = (err: Error): void => {
         console.error('Login error:', err);
         setLoading(false);
         setError(err.message || 'Failed to authenticate. Please try again.');
