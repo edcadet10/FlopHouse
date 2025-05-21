@@ -7,6 +7,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import ClientRedirects from './client-redirects';
 import HashRouter from '@/components/hash-router';
+import NetlifyIdentityInit from '@/components/auth/netlify-identity-init';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,6 +34,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          {/* Netlify Identity initializer */}
+          {/* @ts-expect-error - Server Component importing Client Component */}
+          <NetlifyIdentityInit />
+          
           {/* Client-side redirects handler */}
           <ClientRedirects />
           
@@ -45,16 +50,32 @@ export default function RootLayout({
           </div>
           <Footer />
         </ThemeProvider>
-        <Script id="netlify-identity-redirect">
+        <Script id="netlify-identity-debug">
           {`
             if (window.netlifyIdentity) {
+              console.log('Netlify Identity widget loaded');
               window.netlifyIdentity.on("init", user => {
+                console.log("Netlify Identity init event", user ? "with user" : "no user");
                 if (!user) {
                   window.netlifyIdentity.on("login", () => {
-                    document.location.href = "/admin/";
+                    console.log("Netlify Identity login event");
                   });
                 }
               });
+              
+              window.netlifyIdentity.on("error", err => {
+                console.error("Netlify Identity error:", err);
+              });
+              
+              window.netlifyIdentity.on("open", () => {
+                console.log("Netlify Identity widget opened");
+              });
+              
+              window.netlifyIdentity.on("close", () => {
+                console.log("Netlify Identity widget closed");
+              });
+            } else {
+              console.warn('Netlify Identity widget not available');
             }
           `}
         </Script>

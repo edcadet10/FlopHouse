@@ -29,6 +29,20 @@ export default function IdentityModal({
   useEffect(() => {
     // Ensure the widget is loaded
     if (typeof window !== 'undefined' && window.netlifyIdentity) {
+      // Initialize with the correct site URL if not already initialized
+      const siteUrl = window.location.hostname.includes('localhost') 
+        ? 'flop-house.netlify.app' 
+        : window.location.hostname;
+      
+      // Only initialize if not already initialized
+      if (!window.netlifyIdentity.gotrue) {
+        window.netlifyIdentity.init({
+          APIUrl: `https://${siteUrl}/.netlify/identity`,
+          logo: false
+        });
+        console.log('Initialized Netlify Identity for modal with site:', siteUrl);
+      }
+
       // Handle login success
       const handleLogin = () => {
         setLoading(false);
@@ -38,6 +52,7 @@ export default function IdentityModal({
 
       // Handle login error
       const handleLoginError = (err: Error) => {
+        console.error('Login error:', err);
         setLoading(false);
         setError(err.message || 'Failed to authenticate. Please try again.');
       };
@@ -58,7 +73,18 @@ export default function IdentityModal({
     if (typeof window !== 'undefined' && window.netlifyIdentity) {
       setLoading(true);
       setError(null);
-      window.netlifyIdentity.open('login');
+      
+      try {
+        // Log debug information
+        console.log('Opening Netlify Identity login modal');
+        
+        // Use openModal instead of open for more control
+        window.netlifyIdentity.openModal('login');
+      } catch (e) {
+        console.error('Error opening login modal:', e);
+        setError('Authentication service not available. Please try again later.');
+        setLoading(false);
+      }
     } else {
       setError('Authentication service not available. Please try again later.');
     }
@@ -98,16 +124,16 @@ export default function IdentityModal({
             {loading ? (
               <>
                 <span className="h-4 w-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                Authenticating...
+                {window.netlifyIdentity?.currentUser() ? 'Processing...' : 'Opening Login...'}
               </>
             ) : (
               'Continue with Email'
             )}
           </Button>
           
-          <p className="text-xs text-zinc-400 text-center">
-            We'll send you a magic link to your email. <br />
-            No password required!
+          <p className="text-xs text-zinc-400 text-center mt-4">
+            {loading ? 'If the login widget doesn\'t appear, try refreshing the page.' : 
+            'We\'ll send you a magic link to your email. No password required!'}
           </p>
         </div>
       </div>

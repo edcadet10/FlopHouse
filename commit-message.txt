@@ -1,10 +1,9 @@
-fix: resolve 500 error with Netlify Identity integration
+fix: improve Netlify Identity widget initialization and error handling
 
-- Add robust JWT token decoding with proper padding handling
-- Properly use Netlify clientContext for identity info
-- Add extensive logging to diagnose function issues
-- Fix error handling for better debugging
-- Ensure smooth experience for both authenticated and anonymous users
-- Prevent duplicate upvotes more reliably
+- Add proper initialization of Netlify Identity widget with site URL
+- Fix authentication flow with improved event handling
+- Add extensive debugging information to diagnose identity issues
+- Update identity modal with clearer loading states and error messages
+- Add fallback for localhost development
 
-This should fix the 500 Internal Server Error seen when upvoting stories.
+This should fix the issue where the authentication modal gets stuck in loading.
