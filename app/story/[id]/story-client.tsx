@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react"
 import { useStoryFetcher, Story } from "@/lib/story-fetcher"
 import Auth0Modal from "@/components/auth/auth0-modal"
-import { useUser } from '@auth0/nextjs-auth0/client'
+import { useUser } from '@/components/auth/auth-context'
 
 // Comment interface
 interface Comment {

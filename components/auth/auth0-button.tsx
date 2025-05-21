@@ -1,9 +1,9 @@
 'use client';
 
-import { useUser } from '@auth0/nextjs-auth0/client';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useUser } from './auth-context';
 
 interface AuthButtonProps {
   mode?: 'button' | 'modal';
@@ -43,7 +43,7 @@ export default function Auth0Button({
   if (user) {
     return (
       <Button 
-        onClick={() => window.location.href = '/api/auth/logout'}
+        onClick={() => window.location.href = '/.netlify/functions/auth/logout'}
         variant="outline"
         className="border-white/10"
       >
@@ -57,7 +57,7 @@ export default function Auth0Button({
     setShowError(null);
     
     // Redirect to Auth0 login
-    window.location.href = '/api/auth/login';
+    window.location.href = '/.netlify/functions/auth/login';
   };
 
   // Simple button mode

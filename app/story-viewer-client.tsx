@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react";
 import { Story } from "@/lib/story-fetcher";
-// Replace Netlify Identity with Auth0
+// Updated imports
 import Auth0Modal from "@/components/auth/auth0-modal";
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@/components/auth/auth-context';
 
 // CSS for full-height story page
 const pageStyles = {

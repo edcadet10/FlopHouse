@@ -1,7 +1,7 @@
 'use client';
 
-import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { AuthProvider as CustomAuthProvider } from './auth-context';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  return <UserProvider>{children}</UserProvider>;
+  return <CustomAuthProvider>{children}</CustomAuthProvider>;
 }

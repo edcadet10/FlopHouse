@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
 import Auth0Button from "@/components/auth/auth0-button"
-import { useUser } from '@auth0/nextjs-auth0/client'
+import { useUser } from '@/components/auth/auth-context'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
