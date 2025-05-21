@@ -48,8 +48,8 @@ export default function StoryClient({ params }: { params: { id: string } }) {
   
   // Check if Netlify Identity is available and if user is authenticated
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.netlifyIdentity) {
-      const user = window.netlifyIdentity.currentUser();
+    if (typeof window !== 'undefined') {
+      const user = NetlifyIdentityWidget.currentUser();
       setIsAuthenticated(!!user);
       
       // Set up event listeners
@@ -62,12 +62,12 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         setIsAuthenticated(false);
       };
       
-      window.netlifyIdentity.on('login', handleLogin);
-      window.netlifyIdentity.on('logout', handleLogout);
+      NetlifyIdentityWidget.on('login', handleLogin);
+      NetlifyIdentityWidget.on('logout', handleLogout);
       
       return () => {
-        window.netlifyIdentity.off('login', handleLogin);
-        window.netlifyIdentity.off('logout', handleLogout);
+        NetlifyIdentityWidget.off('login', handleLogin);
+        NetlifyIdentityWidget.off('logout', handleLogout);
       };
     }
   }, []);
@@ -170,7 +170,7 @@ export default function StoryClient({ params }: { params: { id: string } }) {
     if (upvoted || !story) return;
     
     // If not authenticated, show auth modal
-    if (!isAuthenticated && typeof window !== 'undefined' && window.netlifyIdentity) {
+    if (!isAuthenticated && typeof window !== 'undefined') {
       setShowAuthModal(true);
       return;
     }
@@ -204,8 +204,8 @@ export default function StoryClient({ params }: { params: { id: string } }) {
         };
         
         // Add authorization header if authenticated
-        if (typeof window !== 'undefined' && window.netlifyIdentity) {
-          const user = window.netlifyIdentity.currentUser();
+        if (typeof window !== 'undefined') {
+          const user = NetlifyIdentityWidget.currentUser();
           if (user) {
             const token = await user.jwt();
             headers['Authorization'] = `Bearer ${token}`;
