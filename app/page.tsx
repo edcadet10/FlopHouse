@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Link from 'next/link';
 import { MoveUpRight, Sparkles, Zap, TrendingUp, Flame, PieChart } from 'lucide-react';
 import { HeroSection } from '@/components/home/hero-section';
+import RecentStories from '@/components/home/recent-stories';
 
 export default function Home() {
   return (
@@ -74,45 +75,14 @@ export default function Home() {
                 Learn from the latest shared experiences and analyses.
               </p>
             </div>
-            <Button variant="ghost">
-              View All Stories
-              <MoveUpRight className="ml-2 h-4 w-4" />
+            <Button variant="ghost" asChild>
+              <Link href="/browse">
+                View All Stories
+                <MoveUpRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <Link href={`/story/${i}`} key={i} className="group">
-                <Card className="overflow-hidden h-full bg-muted/50 backdrop-blur-sm border-white/10 hover-scale card-animated">
-                  <CardHeader>
-                    <div className="flex items-center gap-2 text-sm text-zinc-500 mb-2">
-                      <span>SaaS</span>
-                      <span>•</span>
-                      <span>Funding: $1.2M</span>
-                    </div>
-                    <CardTitle className="text-lg text-white group-hover:text-cyan-400 transition-colors">
-                      {["TaskMaster", "CodeBuddy", "LaunchNow"][i-1]}: What Went Wrong
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-zinc-400">
-                      {[
-                        "A deep dive into how we misunderstood the market need and built features nobody wanted.",
-                        "We built a great product that developers loved, but our business model couldn't sustain growth.",
-                        "Our no-code platform gained early traction but failed to convert free users to paying customers."
-                      ][i-1]}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="flex justify-between border-t border-white/10 text-sm">
-                    <div className="text-zinc-500">3 days ago</div>
-                    <div className="text-zinc-400 flex items-center">
-                      <Flame className="h-3 w-3 mr-1 text-cyan-400" />
-                      5 min read
-                    </div>
-                  </CardFooter>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          <RecentStories />
         </div>
       </section>
 
