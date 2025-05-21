@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TrendingUp, Zap, ArrowLeft, FileText, Flame, ThumbsUp, AlertCircle, MessageCircle, Send } from "lucide-react";
 import { Story } from "@/lib/story-fetcher";
+// Add import for identity modal
+import IdentityModal from "@/components/auth/identity-modal";
 
 // CSS for full-height story page
 const pageStyles = {
@@ -46,6 +48,8 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
   const [error, setError] = useState<string | null>(null);
   const [upvoting, setUpvoting] = useState(false);
   const [upvoted, setUpvoted] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Comments state
   const [comments, setComments] = useState<Comment[]>([]);
@@ -102,6 +106,30 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
         } catch (err: unknown) {
           console.error('Error parsing upvoted stories:', err);
         }
+      }
+      
+      // Check Netlify Identity
+      if (window.netlifyIdentity) {
+        const user = window.netlifyIdentity.currentUser();
+        setIsAuthenticated(!!user);
+        
+        // Set up event listeners
+        const handleLogin = () => {
+          setIsAuthenticated(true);
+          setShowAuthModal(false);
+        };
+        
+        const handleLogout = () => {
+          setIsAuthenticated(false);
+        };
+        
+        window.netlifyIdentity.on('login', handleLogin);
+        window.netlifyIdentity.on('logout', handleLogout);
+        
+        return () => {
+          window.netlifyIdentity.off('login', handleLogin);
+          window.netlifyIdentity.off('logout', handleLogout);
+        };
       }
     }
   }, [slug]);
@@ -189,13 +217,19 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
   const handleUpvote = async () => {
     if (upvoted || !story) return;
     
+    // If not authenticated, show auth modal
+    if (!isAuthenticated && typeof window !== 'undefined' && window.netlifyIdentity) {
+      setShowAuthModal(true);
+      return;
+    }
+    
     setUpvoting(true);
     
     try {
-      // Update local state
+      // Update local state immediately for responsive UI
       setUpvoted(true);
       
-      // Store in localStorage to prevent multiple upvotes
+      // Store in localStorage as a fallback
       if (typeof window !== 'undefined' && story.id) {
         try {
           const upvotedStories = localStorage.getItem('upvotedStories');
@@ -207,18 +241,28 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
           }
         } catch (err: unknown) {
           console.error('Error storing upvoted stories:', err);
-          // Still create a new entry if parsing failed
           localStorage.setItem('upvotedStories', JSON.stringify([story.id]));
         }
       }
       
-      // Call API
+      // Call API with auth token if available
       try {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        };
+        
+        // Add authorization header if authenticated
+        if (typeof window !== 'undefined' && window.netlifyIdentity) {
+          const user = window.netlifyIdentity.currentUser();
+          if (user) {
+            const token = await user.jwt();
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+        }
+        
         await fetch('/api/upvote-story', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers,
           body: JSON.stringify({ storyId: story.id })
         });
       } catch (error) {
@@ -229,6 +273,14 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
       console.error('Error upvoting:', err);
     } finally {
       setUpvoting(false);
+    }
+  };
+  
+  // Handle authenticated upvote after successful login
+  const handleAuthSuccess = () => {
+    // Proceed with upvote after authentication
+    if (story && !upvoted) {
+      handleUpvote();
     }
   };
   
@@ -461,6 +513,14 @@ export default function StoryViewerClient({ slug }: { slug: string }) {
           </div>
         </div>
       </main>
+      
+      {/* Netlify Identity Modal */}
+      <IdentityModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+        message="Sign in with your email to upvote this story"
+      />
     </div>
   );
 }

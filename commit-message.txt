@@ -1,8 +1,11 @@
-# React Hook Form and Zod setup hooks
+feat: implement Netlify Identity for upvoting
 
-This commit fixes dependency installation issues with:
-- react-hook-form
-- @hookform/resolvers
-- zod
+- Add identity-modal component for seamless authentication
+- Update upvote-story.js to verify JWT tokens and record unique user IDs
+- Modify client components to handle authentication flow
+- Track unique upvoters instead of just incrementing a counter
+- Add documentation for the implementation
 
-These packages are required for form validation and submission handling.
+This change improves data quality by preventing duplicate upvotes
+and enhances the user experience with a streamlined magic link
+authentication flow.

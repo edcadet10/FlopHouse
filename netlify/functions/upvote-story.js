@@ -10,9 +10,30 @@ const logError = (err, context = '') => {
 };
 
 exports.handler = async (event, context) => {
+  // Set CORS headers for all responses
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json"
+  };
+  
+  // Handle preflight requests
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers,
+      body: ""
+    };
+  }
+  
   // Only allow POST requests
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+    return { 
+      statusCode: 405, 
+      headers,
+      body: JSON.stringify({ error: "Method Not Allowed" })
+    };
   }
   
   try {
@@ -23,6 +44,7 @@ exports.handler = async (event, context) => {
     if (!data.storyId) {
       return {
         statusCode: 400,
+        headers,
         body: JSON.stringify({ error: "Story ID is required" })
       };
     }
@@ -31,6 +53,7 @@ exports.handler = async (event, context) => {
     if (!process.env.GITHUB_TOKEN) {
       return {
         statusCode: 500,
+        headers,
         body: JSON.stringify({ 
           error: "GitHub token is not configured",
           message: "Please contact the administrator to set up the GitHub token."
@@ -38,14 +61,45 @@ exports.handler = async (event, context) => {
       };
     }
     
-    // Handle upvote in GitHub
-    await upvoteStoryInGitHub(data.storyId);
+    // Check for Netlify Identity authentication
+    let userId = null;
+    
+    // Get user ID from context or auth header
+    if (event.headers.authorization) {
+      try {
+        const authHeader = event.headers.authorization;
+        const token = authHeader.split(' ')[1];
+        const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        userId = payload.sub;
+        console.log(`User authenticated: ${userId}`);
+      } catch (authError) {
+        console.error("Error parsing auth token:", authError);
+      }
+    }
+    
+    // If no valid authentication, but token was passed, return error
+    if (event.headers.authorization && !userId) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({
+          error: "Authentication failed",
+          message: "Invalid authentication token"
+        })
+      };
+    }
+    
+    // Record the user ID with the upvote if available
+    const upvotes = await upvoteStoryInGitHub(data.storyId, userId);
     
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify({
         message: "Upvote recorded successfully",
-        storyId: data.storyId
+        storyId: data.storyId,
+        upvotes,
+        authenticated: !!userId
       })
     };
   } catch (err) {
@@ -53,6 +107,7 @@ exports.handler = async (event, context) => {
     
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ 
         error: "Failed to process upvote",
         message: err.message
@@ -62,7 +117,7 @@ exports.handler = async (event, context) => {
 };
 
 // Function to update upvote count in GitHub
-async function upvoteStoryInGitHub(storyId) {
+async function upvoteStoryInGitHub(storyId, userId = null) {
   const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN
   });
@@ -70,7 +125,7 @@ async function upvoteStoryInGitHub(storyId) {
   // Repository details from environment variables
   const owner = process.env.GITHUB_OWNER || 'edcadet10';
   const repo = process.env.GITHUB_REPO || 'FlopHouse';
-  const branch = process.env.GITHUB_BRANCH || 'content';
+  const branch = process.env.GITHUB_BRANCH || 'main';
   const path = 'content/stories';
   
   try {
@@ -103,8 +158,22 @@ async function upvoteStoryInGitHub(storyId) {
     // Parse frontmatter
     const { data: frontmatter, content: storyContent } = matter(content);
     
-    // Increment upvotes
-    frontmatter.upvotes = (frontmatter.upvotes || 0) + 1;
+    // Initialize upvotes array if it doesn't exist
+    if (!frontmatter.upvoters) {
+      frontmatter.upvoters = [];
+    }
+    
+    // Store user ID if provided and not already in the array
+    if (userId && !frontmatter.upvoters.includes(userId)) {
+      frontmatter.upvoters.push(userId);
+    } else if (!userId) {
+      // For backward compatibility or anonymous upvotes
+      // Create a placeholder entry for non-authenticated upvotes
+      frontmatter.upvoters.push(`anon-${Date.now()}`);
+    }
+    
+    // Set the upvote count based on the number of unique upvoters
+    frontmatter.upvotes = frontmatter.upvoters.length;
     
     // Create updated content
     const updatedContent = matter.stringify(storyContent, frontmatter);
