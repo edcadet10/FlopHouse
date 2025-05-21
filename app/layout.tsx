@@ -7,9 +7,16 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import ClientRedirects from './client-redirects';
 import HashRouter from '@/components/hash-router';
-import NetlifyIdentityInit from '@/components/auth/netlify-identity-init';
+import ClientOnly from '@/components/client-only';
+import dynamic from 'next/dynamic';
 
 const inter = Inter({ subsets: ['latin'] });
+
+// Import NetlifyIdentityInit dynamically with no SSR
+const NetlifyIdentityLoader = dynamic(
+  () => import('@/components/auth/netlify-identity-init'),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   title: 'FlopHouse - Learn from Failed Startup Ideas',
@@ -34,9 +41,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Netlify Identity initializer */}
-          {/* @ts-expect-error - Server Component importing Client Component */}
-          <NetlifyIdentityInit />
+          {/* Netlify Identity initializer - use dynamic import with no SSR */}
+          <ClientOnly>
+            {/* @ts-expect-error Server Component */}
+            <NetlifyIdentityLoader />
+          </ClientOnly>
           
           {/* Client-side redirects handler */}
           <ClientRedirects />

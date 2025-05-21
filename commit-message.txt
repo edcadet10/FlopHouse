@@ -1,9 +1,8 @@
-fix: improve Netlify Identity widget initialization and error handling
+fix: resolve TypeScript build error with Netlify Identity
 
-- Add proper initialization of Netlify Identity widget with site URL
-- Fix authentication flow with improved event handling
-- Add extensive debugging information to diagnose identity issues
-- Update identity modal with clearer loading states and error messages
-- Add fallback for localhost development
+- Fix TypeScript error with `@ts-expect-error` directive
+- Use dynamic import with { ssr: false } to properly load client components
+- Add ClientOnly wrapper component for cleaner integration
+- Ensure proper client/server component boundaries
 
-This should fix the issue where the authentication modal gets stuck in loading.
+This fixes the build error: "Unused '@ts-expect-error' directive"
