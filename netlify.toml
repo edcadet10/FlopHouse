@@ -11,11 +11,13 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Handle dynamic story routes
+# Handle dynamic story routes for client-side routing
 [[redirects]]
   from = "/story/*"
-  to = "/story/[id]/index.html"
+  to = "/404.html"
   status = 200
+  force = false
+  conditions = {SkipExistingFiles = true}
 
 # Ensure Netlify CMS admin interface is properly served
 [[redirects]]

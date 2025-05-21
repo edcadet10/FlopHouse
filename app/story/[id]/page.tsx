@@ -16,14 +16,17 @@ interface Story {
 
 // This function is required for static site generation with dynamic routes
 export async function generateStaticParams() {
-  // Generate static paths for all our known story IDs
-  // This ensures these pages will be pre-rendered at build time
+  // For static export, we'll include the stories we know about
+  // and rely on client-side fetching for others
   return [
     { id: '1' },
     { id: '2' },
     { id: '3' },
     { id: 'placeholder' },
-    // Add any other known story IDs here
+    { id: 'dhjkhlhjkg' },
+    { id: 'tetttttt' },
+    { id: 'fsadrewqadsar' }
+    // Real stories from content/stories directory
   ]
 }
 
