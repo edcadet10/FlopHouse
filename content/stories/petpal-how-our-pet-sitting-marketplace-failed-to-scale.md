@@ -1,16 +1,16 @@
 ---
-id: mayjygk2krtkm
-title: "PetPal: How Our Pet-Sitting Marketplace Failed to Scale"
-companyName: "PetPal Technologies Inc."
-industry: "marketplace"
-fundingAmount: "$750K"
-failureReason: "other"
+companyName: PetPal Technologies Inc.
+slug: petpal-how-our-pet-sitting-marketplace-failed-to-scale
+failureReason: other
+published: true
 date: "2025-05-21T23:06:43.922Z"
-email: "cadetmej97@gmail.com"
-published: false
-slug: "petpal-how-our-pet-sitting-marketplace-failed-to-scale"
-approve: "pending"
+fundingAmount: $750K
+title: "PetPal: How Our Pet-Sitting Marketplace Failed to Scale"
+id: mayjygk2krtkm
+email: cadetmej97@gmail.com
+industry: marketplace
 ---
+
 
 # The Rise and Fall of PetPal
 
