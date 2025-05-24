@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -10,9 +11,13 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
-            </div>
+            <Image 
+              src="/flop-houselogo.png" 
+              alt="FlopHouse Logo" 
+              width={32} 
+              height={32}
+              className="rounded-full"
+            />
             <span className="text-white font-bold">FlopHouse</span>
             <span className="text-zinc-500 text-sm">©{year}</span>
           </div>

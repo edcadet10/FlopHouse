@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
@@ -13,9 +14,13 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
-            </div>
+            <Image 
+              src="/flop-houselogo.png" 
+              alt="FlopHouse Logo" 
+              width={32} 
+              height={32}
+              className="rounded-full"
+            />
             <span className="text-white font-bold text-lg">FlopHouse</span>
           </Link>
           

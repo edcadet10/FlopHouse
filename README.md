@@ -288,6 +288,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   
 Made with ❤️ by [FlopHouse Team](https://github.com/edcadet10)
 
-<img src="public/flophouse-logo.svg" alt="FlopHouse Logo" width="60">
+<img src="public/flop-houselogo.png" alt="FlopHouse Logo" width="60">
 
 </div>
